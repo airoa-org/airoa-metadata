@@ -1,0 +1,24 @@
+{
+  "bag_path": "eggplant",
+  "git_hash": "3a5967e63b1a0ef860c4567af66ec6ef0ae576ca",
+  "git_branch": "main",
+  "hsr_id": "hsrc49",
+  "location_name": "tmc",
+  "interface": "ps4",
+  "interface_git_hash": "3a5967e63b1a0ef860c4567af66ec6ef0ae576ca",
+  "interface_git_branch": "main",
+  "instructions": [
+    [
+      "Grasp the eggplant."
+    ]
+  ],
+  "segments": [
+    {
+      "start_time": -1,
+      "end_time": -1,
+      "instruction_index": 0,
+      "has_suboptimal": false,
+      "is_directed": true
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "version": "1.0",
+  "bag_path": "tomato_bag",
+  "hsr_id": "hsrc50",
+  "location_name": "lab1",
+  "interface": "remote_control",
+  "instructions": [
+    [
+      "Pick up the tomato."
+    ],
+    [
+      "Place tomato in basket."
+    ],
+    [
+      "Verify placement."
+    ]
+  ],
+  "segments": [
+    {
+      "start_time": 0,
+      "end_time": 5,
+      "instructions_index": 0,
+      "has_suboptimal": false,
+      "is_directed": true
+    },
+    {
+      "start_time": 6,
+      "end_time": 15,
+      "instructions_index": 1,
+      "has_suboptimal": false,
+      "is_directed": true
+    },
+    {
+      "start_time": 16,
+      "end_time": 25,
+      "instructions_index": 2,
+      "has_suboptimal": false,
+      "is_directed": true
+    }
+  ],
+  "git_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "git_branch": "dev",
+  "interface_git_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "interface_git_branch": "dev"
+}

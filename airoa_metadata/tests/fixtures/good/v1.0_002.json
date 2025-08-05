@@ -1,0 +1,35 @@
+{
+  "version": "1.0",
+  "bag_path": "eggplant",
+  "hsr_id": "hsrc49",
+  "location_name": "tmc",
+  "interface": "ps4",
+  "instructions": [
+    [
+      "Grasp the eggplant."
+    ],
+    [
+      "Place it on the table."
+    ]
+  ],
+  "segments": [
+    {
+      "start_time": -1,
+      "end_time": 10,
+      "instructions_index": 0,
+      "has_suboptimal": false,
+      "is_directed": true
+    },
+    {
+      "start_time": 12,
+      "end_time": 20,
+      "instructions_index": 1,
+      "has_suboptimal": true,
+      "is_directed": false
+    }
+  ],
+  "git_hash": "3a5967e63b1a0ef860c4567af66ec6ef0ae576ca",
+  "git_branch": "main",
+  "interface_git_hash": "3a5967e63b1a0ef860c4567af66ec6ef0ae576ca",
+  "interface_git_branch": "main"
+}

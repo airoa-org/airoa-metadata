@@ -1,0 +1,86 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "airoa-metadata"
+version = "1.3.0"
+description = "A Python library for handling versioned metadata for robotic data collection"
+readme = "README.md"
+license = {text = "Custom"}
+authors = [
+    {name = "Petr Khrapchenkov", email = "petr@example.com"},
+]
+maintainers = [
+    {name = "Tokyo University Matsuo Iwasawa Laboratory"},
+    {name = "AIROA"},
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+keywords = ["robotics", "metadata", "data-collection", "json-schema", "versioning"]
+requires-python = ">=3.8"
+dependencies = [
+    "jsonschema>=4.0.0",
+    "typing-extensions>=4.0.0; python_version<'3.10'",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=22.0.0",
+    "isort>=5.10.0",
+    "flake8>=5.0.0",
+    "mypy>=1.0.0",
+]
+test = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/airoa-org/airoa-metadata"
+Repository = "https://github.com/airoa-org/airoa-metadata.git"
+Documentation = "https://airoa-metadata.readthedocs.io/"
+"Bug Tracker" = "https://github.com/airoa-org/airoa-metadata/issues"
+
+[tool.setuptools.packages.find]
+include = ["airoa_metadata*"]
+
+[tool.setuptools.package-data]
+"airoa_metadata.schemas" = ["*.json"]
+"airoa_metadata.tests.fixtures" = ["**/*.json"]
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true

@@ -1,0 +1,158 @@
+{
+  "uuid": "9b773657-6b87-4edc-a6f5-57aef13c22b9",
+  "version": "1.2",
+  "files": [
+    {
+      "type": "rosbag",
+      "name": "mock-task-103-teleop-25-07-08-16-03-38.bag"
+    }
+  ],
+  "context": {
+    "entities": [
+      {
+        "role": "robot",
+        "id": "hsr61"
+      },
+      {
+        "role": "operator",
+        "id": "test-dev"
+      },
+      {
+        "role": "location",
+        "name": "telexistence"
+      },
+      {
+        "role": "organization",
+        "name": "Telexistence-inc"
+      },
+      {
+        "role": "task",
+        "id": "mock-task-103",
+        "template": {
+          "name": "Small can pickup",
+          "description": "Take one small can from the shelf and place it into the container."
+        }
+      }
+    ],
+    "components": [
+      {
+        "role": "interface",
+        "name": "hsr_leader_teleop",
+        "source": {
+          "git": {
+            "uri": "https://github.com/airoa-org/hsr_leader_teleop.git",
+            "hash": "",
+            "branch": ""
+          }
+        }
+      },
+      {
+        "role": "data_capture",
+        "name": "rosbag_manager",
+        "source": {
+          "git": {
+            "uri": "https://github.com/airoa-org/hsr_data_collection.git",
+            "hash": "201a58fe41ec93365ee484843d96dd0d93854595",
+            "branch": "feature/interfaces_for_web_ui"
+          }
+        }
+      }
+    ]
+  },
+  "run": {
+    "total_time_s": 34.70426845550537,
+    "instructions": [
+      {
+        "idx": 0,
+        "text": [
+          "Navigate to the shelf"
+        ]
+      },
+      {
+        "idx": 1,
+        "text": [
+          "Grab one small can"
+        ]
+      },
+      {
+        "idx": 2,
+        "text": [
+          "Go to container"
+        ]
+      },
+      {
+        "idx": 3,
+        "text": [
+          "Place small can into container"
+        ]
+      },
+      {
+        "idx": 4,
+        "text": [
+          "Return to charging station"
+        ]
+      },
+      {
+        "idx": 5,
+        "text": [
+          "Take one small can from the shelf and place it into the container."
+        ]
+      }
+    ],
+    "segments": [
+      {
+        "start_time": 1751958218.4294522,
+        "end_time": 1751958222.318637,
+        "instruction_idx": 0,
+        "success": true,
+        "controlled_by": "operator",
+        "score": 0.1
+      },
+      {
+        "start_time": 1751958228.629027,
+        "end_time": 1751958230.276327,
+        "instruction_idx": 1,
+        "success": true,
+        "controlled_by": "operator",
+        "score": 0.1
+      },
+      {
+        "start_time": 1751958234.2289574,
+        "end_time": 1751958236.7747073,
+        "instruction_idx": 2,
+        "success": false,
+        "controlled_by": "operator"
+      },
+      {
+        "start_time": 1751958240.928413,
+        "end_time": 1751958242.6597075,
+        "instruction_idx": 2,
+        "success": false,
+        "controlled_by": "operator"
+      },
+      {
+        "start_time": 1751958246.4289606,
+        "end_time": 1751958248.442971,
+        "instruction_idx": 3,
+        "success": true,
+        "controlled_by": "operator",
+        "score": 0.1
+      },
+      {
+        "start_time": 1751958251.528803,
+        "end_time": 1751958253.1337206,
+        "instruction_idx": 4,
+        "success": true,
+        "controlled_by": "operator"
+      },
+      {
+        "start_time": 1751958218.4294522,
+        "end_time": 1751958253.1337206,
+        "instruction_idx": 5,
+        "success": true,
+        "controlled_by": "operator",
+        "is_composite": true
+      }
+    ]
+  }
+}

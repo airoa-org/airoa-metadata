@@ -1,0 +1,118 @@
+{
+  "version": "1.1",
+  "files": [
+    {"type": "rosbag", "name": "tomato_bag"},
+    /* Define in schema which file types are required for the data processing */
+    {"type": "rosbag2", "name": "tomato_bag2"},
+    {"type": "video", "name": "video.mp4"},
+    {"type": "json", "name": "statistics.json"}
+  ],
+  "context": {
+    "entities": [
+      {
+        "role": "label",
+        "name": "onodera"
+      },
+      {
+        "role": "robot",
+        "id":   "hsrc050"
+      },
+      {
+        "role":           "operator",
+        "id":             null,
+        "proficiency":    0.0,
+        "operating_time": 121312
+      },
+      {
+        "role": "location",
+        "name": "9F"
+      },
+      {
+        "role": "organization",
+        "name": "lab1"
+      },
+      {
+        "role": "task",
+        "id":          "task-1234",
+        "difficulty": 10,
+        "template": { 
+          "id": null, 
+          "name": "default_template"
+        }
+      }
+    ],
+    "components": [
+      {
+        "role": "interface",
+        "name": "remote_control",
+        "source": {
+          "git": {
+            "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "branch": "dev",
+            "tag": null
+          }
+        }
+      },
+      {
+        "role": "data_capture",
+        "name": "sensor_logger",
+        "source": {
+          "git": {
+            "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "branch": "dev",
+            "tag": null
+          }
+        }
+      },
+    ],
+  },
+  "data_schema": {
+    "uri": "https://raw.githubusercontent.com/airoa-org/data_schema/v0.0.1/schemas/hsr-ros2.json",
+  },
+  "run": {
+    "total_time_s": 145.0,
+    "instructions": [
+      {
+        "idx": 0,
+        "text": ["Pick up the tomato."],
+        "target_time": 10
+      },
+      {
+        "idx": 1,
+        "text": ["Place tomato in basket."],
+        "target_time": 10
+      },
+      {
+        "idx": 2,
+        "text": ["Verify placement."],
+        "target_time": 10
+      }
+    ],
+    "segments": [
+      {
+        "start_time": 0,
+        "end_time": 5,
+        "instruction_idx": 0,
+        "success": true,
+        "controlled_by": "operator",
+        "score": 0.33
+      },
+      {
+        "start_time": 6,
+        "end_time": 15,
+        "instruction_idx": 1,
+        "success": true,
+        "controlled_by": "operator",
+        "score": 0.33,
+      },
+      {
+        "start_time": 16,
+        "end_time": 25,
+        "instruction_idx": 2,
+        "success": true,
+        "controlled_by": "operator",
+        "score": 0.33,
+      }
+    ]
+  }
+}

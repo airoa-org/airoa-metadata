@@ -1,0 +1,51 @@
+{
+  "version": "1.1",
+  "bag_path": "eggplant",
+  "robot_id": "hsrc49",
+  "id": null,
+  "organization": {
+    "id": null,
+    "name": "tmc"
+  },
+  "location": {
+    "id": null,
+    "name": "tmc"
+  },
+  "interface": {
+    "id": null,
+    "name": "ps4",
+    "git_hash": "3a5967e63b1a0ef860c4567af66ec6ef0ae576ca",
+    "git_branch": "main",
+    "git_tag": null
+  },
+  "data_capture": {
+    "git_hash": "3a5967e63b1a0ef860c4567af66ec6ef0ae576ca",
+    "git_branch": "main",
+    "git_tag": null
+  },
+  "task": {
+    "id": null,
+    "template": {
+      "id": null,
+      "name": "default_template",
+      "instructions": [
+        {
+          "id": null,
+          "text": ["Grasp the eggplant."]
+        }
+      ]
+    }
+  },
+  "operator_id": null,
+  "data": {
+    "segments": [
+      {
+        "start_time": -1,
+        "end_time": -1,
+        "instruction_idx": 0,
+        "success": true,
+        "controlled_by": "operator"
+      }
+    ]
+  }
+}

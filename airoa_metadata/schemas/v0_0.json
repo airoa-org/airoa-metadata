@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Metadata Version 0.0",
+  "type": "object",
+  "properties": {
+    "bag_path": {
+      "type": "string"
+    },
+    "git_hash": {
+      "type": "string"
+    },
+    "git_branch": {
+      "type": "string"
+    },
+    "hsr_id": {
+      "type": "string"
+    },
+    "location_name": {
+      "type": "string"
+    },
+    "interface": {
+      "type": "string"
+    },
+    "interface_git_hash": {
+      "type": "string"
+    },
+    "interface_git_branch": {
+      "type": "string"
+    },
+    "instructions": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "segments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "start_time": {
+            "type": "number"
+          },
+          "end_time": {
+            "type": "number"
+          },
+          "instruction_index": {
+            "type": "integer"
+          },
+          "has_suboptimal": {
+            "type": "boolean"
+          },
+          "is_directed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "start_time",
+          "end_time",
+          "instruction_index",
+          "has_suboptimal",
+          "is_directed"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "bag_path",
+    "git_hash",
+    "git_branch",
+    "hsr_id",
+    "location_name",
+    "interface",
+    "interface_git_hash",
+    "interface_git_branch",
+    "instructions",
+    "segments"
+  ],
+  "additionalProperties": false
+}

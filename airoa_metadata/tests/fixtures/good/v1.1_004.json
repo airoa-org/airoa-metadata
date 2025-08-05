@@ -1,0 +1,54 @@
+{
+  "version": "1.1",
+  "data": {
+    "format": "ros1",
+    "data_files": ["tomato.bag"]
+  },
+  "robot_id": "hsrc50",
+  "organization_id": "weblab",
+  "location_id": "weblab_9f",
+  "interface": {
+    "name": "hsr_data_collection/hsr_leader_teleop",
+    "device": {},
+    "git_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "git_branch": "dev",
+  },
+  "data_capture": {
+    "git_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "git_branch": "dev",
+  },
+  "task": {
+    "id": null,
+    "template_id": "null",
+    "instructions": [
+      ["action 1"],
+      ["action 1"]
+    ]
+  },
+  "operator_id": null,
+  "data": {
+    "segments": [
+      {
+        "start_time": 0,
+        "end_time": 5,
+        "instruction_idx": 0,
+        "success": true,
+        "controlled_by": "operator"
+      },
+      {
+        "start_time": 6,
+        "end_time": 15,
+        "instruction_idx": 1,
+        "success": true,
+        "controlled_by": "operator"
+      },
+      {
+        "start_time": 16,
+        "end_time": 25,
+        "instruction_idx": 2,
+        "success": true,
+        "controlled_by": "operator"
+      }
+    ]
+  }
+}
