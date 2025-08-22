@@ -1,50 +1,66 @@
 {
   "version": "1.1",
-  "bag_path": "eggplant",
-  "robot_id": "hsrc49",
-  "id": null,
-  "organization": {
-    "id": null,
-    "name": "tmc"
-  },
-  "location": {
-    "id": null,
-    "name": "tmc"
-  },
-  "interface": {
-    "id": null,
-    "name": "ps4",
-    "git_hash": "3a5967e63b1a0ef860c4567af66ec6ef0ae576ca",
-    "git_branch": "main",
-    "git_tag": null
-  },
-  "data_capture": {
-    "git_hash": "3a5967e63b1a0ef860c4567af66ec6ef0ae576ca",
-    "git_branch": "main",
-    "git_tag": null
-  },
-  "task": {
-    "id": null,
-    "template": {
-      "id": null,
-      "name": "default_template",
-      "instructions": [
-        {
-          "id": null,
-          "text": ["Grasp the eggplant."]
-        },
-        {
-          "id": null,
-          "text": ["Place it on the table."]
-        }
-      ]
+  "files": [
+    {
+      "type": "rosbag",
+      "name": "eggplant.bag"
     }
+  ],
+  "context": {
+    "entities": [
+      {
+        "role": "robot",
+        "id": "hsrc49"
+      },
+      {
+        "role": "location",
+        "name": "tmc"
+      },
+      {
+        "role": "organization", 
+        "name": "tmc"
+      }
+    ],
+    "components": [
+      {
+        "role": "interface",
+        "name": "ps4",
+        "source": {
+          "git": {
+            "hash": "3a5967e63b1a0ef860c4567af66ec6ef0ae576ca",
+            "branch": "main",
+            "tag": null
+          }
+        }
+      },
+      {
+        "role": "data_capture", 
+        "name": "rosbag_manager",
+        "source": {
+          "git": {
+            "hash": "3a5967e63b1a0ef860c4567af66ec6ef0ae576ca",
+            "branch": "main",
+            "tag": null
+          }
+        }
+      }
+    ]
   },
-  "operator_id": null,
-  "data": {
+  "run": {
+    "total_time_s": 30.0,
+    "instructions": [
+      {
+        "idx": 0,
+        "text": ["Grasp the eggplant."]
+      },
+      {
+        "idx": 1,
+        "text": ["Place it on the table."]
+      }
+    ],
     "segments": [
       {
-        "start_time": -1,
+        "start_time": 0,
         "end_time": 10,
         "instruction_idx": 0,
         "success": true,

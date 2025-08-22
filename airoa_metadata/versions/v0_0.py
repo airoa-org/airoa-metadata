@@ -47,6 +47,7 @@ class MetadataV0_0(MetadataBase):
     interface: str
     interface_git_hash: str
     interface_git_branch: str
+    label: str = ""
     instructions: List[List[str]] = field(default_factory=list)
     segments: List[SegmentV0_0] = field(default_factory=list)
 
@@ -69,6 +70,7 @@ class MetadataV0_0(MetadataBase):
             interface=data.get("interface", ""),
             interface_git_hash=data.get("interface_git_hash", ""),
             interface_git_branch=data.get("interface_git_branch", ""),
+            label=data.get("label", ""),
             instructions=data.get("instructions", []),
             segments=seg_list,
         )

@@ -3,7 +3,7 @@
   "title": "Metadata version 1.1",
   "description": "Schema describing versioned run metadata, including files, context, data schema reference, and run details.",
   "type": "object",
-  "required": ["uuid", "version", "files", "context", "run"],
+  "required": ["version", "files", "context", "run"],
   "properties": {
     "$schema": {
       "type": "string",
@@ -20,10 +20,17 @@
       "format": "uri",
       "description": "Robot Data Config declaration (ignored by validator during instance validation)."
     },
-    "uuid": {
-      "type": "string",
-      "format": "uuid",
-      "description": "Unique identifier for this run."
+    "data_schema": {
+      "type": "object",
+      "description": "Reference to external data schema.",
+      "properties": {
+        "uri": {
+          "type": "string",
+          "format": "uri",
+          "description": "URI to the data schema."
+        }
+      },
+      "additionalProperties": false
     },
     "version": {
       "type": "string",
@@ -63,6 +70,10 @@
           "type": "number",
           "minimum": 0,
           "description": "Total duration of the run in seconds (rosbag time)."
+        },
+        "episode_label": {
+          "type": ["string", "null"],
+          "description": "Optional episode label for this run."
         },
         "instructions": {
           "type": "array",
@@ -175,7 +186,7 @@
             "git": {
               "type": "object",
               "description": "Git repository snapshot used for this component.",
-              "required": ["uri", "hash", "branch"],
+              "required": ["hash", "branch"],
               "properties": {
                 "uri": {
                   "type": "string",
@@ -191,7 +202,7 @@
                   "description": "Branch name."
                 },
                 "tag": {
-                  "type": "string",
+                  "type": ["string", "null"],
                   "description": "Optional Git tag."
                 }
               },

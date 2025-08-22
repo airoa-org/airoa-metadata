@@ -68,6 +68,10 @@
     },
     "interface_git_branch": {
       "type": ["string", "null"]
+    },
+    "label": {
+      "type": "string",
+      "description": "Optional label for the data collection run."
     }
   },
   "required": [

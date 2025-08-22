@@ -159,10 +159,9 @@ class TestMetadataV1_1:
         metadata = MetadataV1_1.from_dict(v1_1_test_data)
 
         assert metadata.version == "1.1"
-        assert len(metadata.data_files) > 0
-        assert metadata.robot is not None
-        assert metadata.task is not None
-        assert metadata.data is not None
+        assert len(metadata.files) > 0
+        assert metadata.context is not None
+        assert metadata.run is not None
 
     def test_to_json_serialization(self, v1_1_test_data: Dict[str, Any]):
         """Test JSON serialization."""

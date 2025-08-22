@@ -49,6 +49,7 @@ class MetadataV1_0(MetadataBase):
     git_branch: str = ""
     interface_git_hash: str = ""
     interface_git_branch: str = ""
+    label: str = ""
 
     @property
     def version(self) -> str:
@@ -72,6 +73,7 @@ class MetadataV1_0(MetadataBase):
             git_branch=data.get("git_branch", ""),
             interface_git_hash=data.get("interface_git_hash", ""),
             interface_git_branch=data.get("interface_git_branch", ""),
+            label=data.get("label", ""),
         )
         instance.data = data  # Preserve raw data for conversion.
         instance.extra_keys = extra_keys or {}

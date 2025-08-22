@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Metadata version 1.2",
+  "title": "Metadata version 1.3",
   "description": "Schema describing versioned run metadata, including files, context, data schema reference, and run details.",
   "type": "object",
   "required": ["uuid", "version", "files", "context", "run"],
@@ -16,9 +16,9 @@
       "description": "Schema identifier (ignored by validator during instance validation)."
     },
     "$data_config": {
-      "type": "object",
+      "type": "string",
       "format": "uri",
-      "description": "Robot Data Config declaration (ignored by validator during instance validation)."
+      "description": "Robot Data Config JSON file reference (ignored by validator during instance validation)."
     },
     "uuid": {
       "type": "string",
@@ -63,6 +63,10 @@
           "type": "number",
           "minimum": 0,
           "description": "Total duration of the run in seconds (rosbag time)."
+        },
+        "episode_label": {
+          "type": ["string", "null"],
+          "description": "Optional episode label for this run."
         },
         "instructions": {
           "type": "array",

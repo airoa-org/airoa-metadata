@@ -18,6 +18,7 @@ furnished to do so, subject to the following conditions:
 """
 
 import logging
+import uuid
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
@@ -95,6 +96,7 @@ class RunV1_2:
     total_time_s: float
     instructions: List[InstructionV1_2] = field(default_factory=list)
     segments: List[SegmentV1_2] = field(default_factory=list)
+    episode_label: Optional[str] = None
 
 
 @dataclass
@@ -148,7 +150,8 @@ class MetadataV1_2(MetadataBase):
         run = RunV1_2(
             total_time_s=data.get("run", {}).get("total_time_s", 0.0),
             instructions=instructions,
-            segments=segments
+            segments=segments,
+            episode_label=data.get("run", {}).get("episode_label")
         )
         
         instance = cls(
@@ -178,79 +181,77 @@ class MetadataV1_2(MetadataBase):
         elif not isinstance(metadata, cls.preceding()):
             metadata = cls.preceding().convert(metadata, extra_keys=extra_keys)
 
-        files = [FileV1_2(type="rosbag", name=file) for file in metadata.data_files]
+        files = [FileV1_2(type=f.type, name=f.name) for f in metadata.files]
         
         entities = []
-        if metadata.robot.id:
-            entities.append(EntityV1_2(role="robot", id=metadata.robot.id))
-        if metadata.operator_id:
-            entities.append(EntityV1_2(role="operator", id=metadata.operator_id))
-        if metadata.location.name:
-            entities.append(EntityV1_2(role="location", name=metadata.location.name))
-        if metadata.organization.name:
-            entities.append(EntityV1_2(role="organization", name=metadata.organization.name))
-        if metadata.task.id:
-            template = None
-            if metadata.task.template.name:
+        for entity in metadata.context.entities:
+            if entity.role == "task" and entity.template:
                 template = TaskTemplateV1_2(
-                    name=metadata.task.template.name,
-                    description=getattr(metadata.task.template, 'description', metadata.task.template.name)
+                    name=entity.template.get("name", ""),
+                    description=entity.template.get("description", entity.template.get("name", ""))
                 )
-            entities.append(EntityV1_2(role="task", id=metadata.task.id, template=template))
+                entities.append(EntityV1_2(role="task", id=entity.id, template=template))
+            else:
+                entities.append(EntityV1_2(role=entity.role, id=entity.id, name=entity.name))
         
         components = []
-        if metadata.interface.name:
+        for comp in metadata.context.components:
             git_source = GitSourceV1_2(
-                uri="",  
-                hash=metadata.interface.git_hash,
-                branch=metadata.interface.git_branch,
-                tag=metadata.interface.git_tag
+                uri=comp.source.git.uri or "",
+                hash=comp.source.git.hash,
+                branch=comp.source.git.branch,
+                tag=comp.source.git.tag
             )
             source = SourceV1_2(git=git_source)
             components.append(ComponentV1_2(
-                role="interface",
-                name=metadata.interface.name,
+                role=comp.role,
+                name=comp.name,
                 source=source
             ))
         
-        git_source_dc = GitSourceV1_2(
-            uri="",  
-            hash=metadata.data_capture.git_hash,
-            branch=metadata.data_capture.git_branch,
-            tag=metadata.data_capture.git_tag
-        )
-        source_dc = SourceV1_2(git=git_source_dc)
-        components.append(ComponentV1_2(
-            role="data_capture",
-            name="data_capture",
-            source=source_dc
-        ))
-        
         context = ContextV1_2(entities=entities, components=components)
         
-        instructions = []
-        for idx, instr in enumerate(metadata.task.template.instructions):
-            instructions.append(InstructionV1_2(idx=idx, text=instr.text))
+        instructions = [InstructionV1_2(idx=instr.idx, text=instr.text) for instr in metadata.run.instructions]
         
         segments = []
-        for seg in metadata.data.segments:
-            controlled_by = "operator" if seg.is_operator_controlled else "auto_data_collection"
+        for i, seg in enumerate(metadata.run.segments):
+            # Check if this segment overlaps with any other segment (making it composite)
+            is_composite = seg.is_composite
+            if not is_composite:  # Only check if not already marked as composite
+                for j, other_seg in enumerate(metadata.run.segments):
+                    if i != j:  # Don't compare with itself
+                        # Check for overlap: segment A overlaps with B if A.start < B.end and B.start < A.end
+                        if (seg.start_time < other_seg.end_time and 
+                            other_seg.start_time < seg.end_time and
+                            # Also check if this segment is bigger (longer duration)
+                            (seg.end_time - seg.start_time) > (other_seg.end_time - other_seg.start_time)):
+                            is_composite = True
+                            break
+            
             segments.append(SegmentV1_2(
                 start_time=seg.start_time,
                 end_time=seg.end_time,
-                instruction_idx=seg.instruction_index,
+                instruction_idx=seg.instruction_idx,
                 success=seg.success,
-                controlled_by=controlled_by
+                controlled_by=seg.controlled_by,
+                score=seg.score,
+                is_composite=is_composite
             ))
         
         run = RunV1_2(
-            total_time_s=sum(seg.end_time - seg.start_time for seg in metadata.data.segments),
+            total_time_s=metadata.run.total_time_s,
             instructions=instructions,
-            segments=segments
+            segments=segments,
+            episode_label=getattr(metadata.run, 'episode_label', None)
         )
         
+        # Generate UUID if not present in source metadata or extra_keys
+        metadata_uuid = getattr(metadata, 'uuid', '') or ''
+        extra_uuid = extra_keys.get("uuid", "") if extra_keys else ""
+        final_uuid = metadata_uuid or extra_uuid or str(uuid.uuid4())
+        
         new_data = {
-            "uuid": extra_keys.get("uuid", "") if extra_keys else "",
+            "uuid": final_uuid,
             "version": "1.2",
             "files": [{"type": file.type, "name": file.name} for file in files],
             "context": {
@@ -284,6 +285,7 @@ class MetadataV1_2(MetadataBase):
             },
             "run": {
                 "total_time_s": run.total_time_s,
+                "episode_label": run.episode_label,
                 "instructions": [
                     {"idx": instr.idx, "text": instr.text}
                     for instr in instructions

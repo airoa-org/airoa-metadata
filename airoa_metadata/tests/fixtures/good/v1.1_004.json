@@ -1,32 +1,71 @@
 {
   "version": "1.1",
-  "data": {
-    "format": "ros1",
-    "data_files": ["tomato.bag"]
-  },
-  "robot_id": "hsrc50",
-  "organization_id": "weblab",
-  "location_id": "weblab_9f",
-  "interface": {
-    "name": "hsr_data_collection/hsr_leader_teleop",
-    "device": {},
-    "git_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-    "git_branch": "dev",
-  },
-  "data_capture": {
-    "git_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-    "git_branch": "dev",
-  },
-  "task": {
-    "id": null,
-    "template_id": "null",
-    "instructions": [
-      ["action 1"],
-      ["action 1"]
+  "files": [
+    {
+      "type": "rosbag",
+      "name": "tomato.bag"
+    }
+  ],
+  "context": {
+    "entities": [
+      {
+        "role": "robot",
+        "id": "hsrc50"
+      },
+      {
+        "role": "location",
+        "name": "weblab_9f"
+      },
+      {
+        "role": "organization",
+        "name": "weblab"
+      },
+      {
+        "role": "task",
+        "id": "null",
+        "template": {
+          "name": "null",
+          "description": "Default task template"
+        }
+      }
+    ],
+    "components": [
+      {
+        "role": "interface",
+        "name": "hsr_data_collection/hsr_leader_teleop",
+        "source": {
+          "git": {
+            "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "branch": "dev",
+            "tag": null
+          }
+        }
+      },
+      {
+        "role": "data_capture",
+        "name": "data_capture_component",
+        "source": {
+          "git": {
+            "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "branch": "dev",
+            "tag": null
+          }
+        }
+      }
     ]
   },
-  "operator_id": null,
-  "data": {
+  "run": {
+    "total_time_s": 25.0,
+    "instructions": [
+      {
+        "idx": 0,
+        "text": ["action 1"]
+      },
+      {
+        "idx": 1,
+        "text": ["action 1"]
+      }
+    ],
     "segments": [
       {
         "start_time": 0,
