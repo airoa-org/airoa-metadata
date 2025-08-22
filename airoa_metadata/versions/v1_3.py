@@ -89,6 +89,7 @@ class RunV1_3:
     total_time_s: float
     instructions: List[InstructionV1_3] = field(default_factory=list)
     segments: List[SegmentV1_3] = field(default_factory=list)
+    episode_label: Optional[str] = None
 
 
 @dataclass
@@ -133,7 +134,8 @@ class MetadataV1_3(MetadataBase):
         run = RunV1_3(
             total_time_s=data.get("run", {}).get("total_time_s", 0.0),
             instructions=instructions,
-            segments=segments
+            segments=segments,
+            episode_label=data.get("run", {}).get("episode_label")
         )
         
         instance = cls(
@@ -222,7 +224,8 @@ class MetadataV1_3(MetadataBase):
         run = RunV1_3(
             total_time_s=metadata.run.total_time_s,
             instructions=instructions,
-            segments=segments
+            segments=segments,
+            episode_label=getattr(metadata.run, 'episode_label', None)
         )
         
         new_data = {
@@ -257,6 +260,7 @@ class MetadataV1_3(MetadataBase):
             },
             "run": {
                 "total_time_s": run.total_time_s,
+                "episode_label": run.episode_label,
                 "instructions": [
                     {"idx": instr.idx, "text": instr.text}
                     for instr in instructions

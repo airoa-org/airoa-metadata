@@ -2,7 +2,6 @@
   "version": "1.1",
   "files": [
     {"type": "rosbag", "name": "tomato_bag"},
-    /* Define in schema which file types are required for the data processing */
     {"type": "rosbag2", "name": "tomato_bag2"},
     {"type": "video", "name": "video.mp4"},
     {"type": "json", "name": "statistics.json"}
@@ -18,10 +17,8 @@
         "id":   "hsrc050"
       },
       {
-        "role":           "operator",
-        "id":             null,
-        "proficiency":    0.0,
-        "operating_time": 121312
+        "role": "operator",
+        "id": null
       },
       {
         "role": "location",
@@ -33,11 +30,10 @@
       },
       {
         "role": "task",
-        "id":          "task-1234",
-        "difficulty": 10,
+        "id": "task-1234",
         "template": { 
-          "id": null, 
-          "name": "default_template"
+          "name": "default_template",
+          "description": "Default task template"
         }
       }
     ],
@@ -63,11 +59,11 @@
             "tag": null
           }
         }
-      },
+      }
     ],
   },
   "data_schema": {
-    "uri": "https://raw.githubusercontent.com/airoa-org/data_schema/v0.0.1/schemas/hsr-ros2.json",
+    "uri": "https://raw.githubusercontent.com/airoa-org/data_schema/v0.0.1/schemas/hsr-ros2.json"
   },
   "run": {
     "total_time_s": 145.0,
@@ -103,7 +99,7 @@
         "instruction_idx": 1,
         "success": true,
         "controlled_by": "operator",
-        "score": 0.33,
+        "score": 0.33
       },
       {
         "start_time": 16,
@@ -111,7 +107,7 @@
         "instruction_idx": 2,
         "success": true,
         "controlled_by": "operator",
-        "score": 0.33,
+        "score": 0.33
       }
     ]
   }

@@ -28,56 +28,54 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class OrganizationV1_1:
-    id: Optional[str]
+class FileV1_1:
+    type: str
     name: str
 
 
 @dataclass
-class LocationV1_1:
-    id: Optional[str]
+class GitSourceV1_1:
+    hash: str
+    branch: str
+    uri: Optional[str] = None
+    tag: Optional[str] = None
+
+
+@dataclass
+class SourceV1_1:
+    git: GitSourceV1_1
+
+
+@dataclass
+class EntityV1_1:
+    role: str
+    id: Optional[str] = None
+    name: Optional[str] = None
+    template: Optional[Dict[str, Any]] = None
+
+
+@dataclass
+class ComponentV1_1:
+    role: str
     name: str
+    source: SourceV1_1
 
 
 @dataclass
-class RobotV1_1:
-    id: Optional[str]
-    model: str
+class ContextV1_1:
+    entities: List[EntityV1_1] = field(default_factory=list)
+    components: List[ComponentV1_1] = field(default_factory=list)
 
 
 @dataclass
-class InterfaceV1_1:
-    id: Optional[str]
-    name: str
-    git_hash: str
-    git_branch: str
-    git_tag: Optional[str]
-
-
-@dataclass
-class DataCaptureV1_1:
-    git_hash: str
-    git_branch: str
-    git_tag: Optional[str]
+class DataSchemaV1_1:
+    uri: str
 
 
 @dataclass
 class InstructionV1_1:
-    id: Optional[str]
+    idx: int
     text: List[str]
-
-
-@dataclass
-class TemplateV1_1:
-    id: Optional[str]
-    name: str
-    instructions: List[InstructionV1_1] = field(default_factory=list)
-
-
-@dataclass
-class TaskV1_1:
-    id: Optional[str]
-    template: TemplateV1_1
 
 
 @dataclass
@@ -92,191 +90,141 @@ class SegmentV1_1:
 
 
 @dataclass
-class DataV1_1:
+class RunV1_1:
+    total_time_s: float
+    instructions: List[InstructionV1_1] = field(default_factory=list)
     segments: List[SegmentV1_1] = field(default_factory=list)
+    episode_label: Optional[str] = None
 
 
 @dataclass
 class MetadataV1_1(MetadataBase):
-    data_files: List[str]
-    robot: RobotV1_1
-    organization: OrganizationV1_1
-    location: LocationV1_1
-    interface: InterfaceV1_1
-    data_capture: DataCaptureV1_1
-    task: TaskV1_1
-    operator_id: Optional[str]
-    data: DataV1_1
-    version: str = "1.1"  # field(init=True, repr=True, default="1.1")
+    version: str = "1.1"
+    files: List[FileV1_1] = field(default_factory=list)
+    context: ContextV1_1 = field(default_factory=ContextV1_1)
+    run: RunV1_1 = field(default_factory=RunV1_1)
+    data_schema: Optional[DataSchemaV1_1] = None
 
     @classmethod
     def from_dict(
         cls, data: Dict[str, Any], extra_keys: Optional[Dict[str, Any]] = None
     ) -> "MetadataV1_1":
-        # In a real implementation you may need to transform nested objects.
-        org_data = data.get("organization", {})
-        loc_data = data.get("location", {})
-        iface_data = data.get("interface", {})
-        dc_data = data.get("data_capture", {})
-        task_data = data.get("task", {})
-        template_data = task_data.get("template", {})
-        instructions = [
-            InstructionV1_1(**instr) for instr in template_data.get("instructions", [])
-        ]
-        template = TemplateV1_1(
-            id=template_data.get("id"),
-            name=template_data.get("name", ""),
+        files = [FileV1_1(**file_data) for file_data in data.get("files", [])]
+        
+        entities = []
+        for entity_data in data.get("context", {}).get("entities", []):
+            entities.append(EntityV1_1(**entity_data))
+        
+        components = []
+        for comp_data in data.get("context", {}).get("components", []):
+            git_data = comp_data["source"]["git"]
+            git_source = GitSourceV1_1(**git_data)
+            source = SourceV1_1(git=git_source)
+            components.append(ComponentV1_1(
+                role=comp_data["role"],
+                name=comp_data["name"],
+                source=source
+            ))
+        
+        context = ContextV1_1(entities=entities, components=components)
+        
+        instructions = []
+        for instr_data in data.get("run", {}).get("instructions", []):
+            instructions.append(InstructionV1_1(**instr_data))
+        
+        segments = []
+        for seg_data in data.get("run", {}).get("segments", []):
+            segments.append(SegmentV1_1(**seg_data))
+        
+        run = RunV1_1(
+            total_time_s=data.get("run", {}).get("total_time_s", 0.0),
             instructions=instructions,
+            segments=segments,
+            episode_label=data.get("run", {}).get("episode_label")
         )
-        task = TaskV1_1(id=task_data.get("id"), template=template)
-        segments = [
-            SegmentV1_1(**seg) for seg in data.get("data", {}).get("segments", [])
-        ]
-        data_obj = DataV1_1(segments=segments)
-        # TODO: add data verification for git hash, etc
+        
+        data_schema = None
+        if "data_schema" in data:
+            data_schema = DataSchemaV1_1(**data["data_schema"])
+        
         instance = cls(
-            # version=data.get("version", "1.1"),
-            data_files=data.get("data_files", [data.get("bag_path")] if data.get("bag_path") else []),
-            robot=RobotV1_1(
-                id=data.get("robot", {}).get("id", None),
-                model=data.get("robot", {}).get("model", None),
-            ),
-            organization=OrganizationV1_1(
-                id=data.get("organization", {}).get("id")
-                or extra_keys.get("organization_id")
-                if extra_keys
-                else None,
-                name=data.get("organization", {}).get("name")
-                or data.get("location_name", ""),
-            ),
-            location=LocationV1_1(
-                id=data.get("location", {}).get("id") or extra_keys.get("location_id")
-                if extra_keys
-                else None,
-                name=data.get("location", {}).get("name") or "9f",
-            ),
-            interface=InterfaceV1_1(
-                id=data.get("interface", {}).get("id") or extra_keys.get("interface_id")
-                if extra_keys
-                else None,
-                name=data.get("interface", {}).get("name") or data.get("interface", ""),
-                git_hash=data.get("interface", {}).get("git_hash")
-                or data.get("interface_git_hash", "0" * 40),
-                git_branch=data.get("interface", {}).get("git_branch")
-                or data.get("interface_git_branch", "master"),
-                git_tag=data.get("interface", {}).get("git_tag")
-                or extra_keys.get("interface_git_tag")
-                if extra_keys
-                else None,
-            ),
-            data_capture=DataCaptureV1_1(
-                git_hash=data.get("data_capture", {}).get("git_hash")
-                or data.get("git_hash", "0" * 40),
-                git_branch=data.get("data_capture", {}).get("git_branch")
-                or data.get("git_branch", "master"),
-                git_tag=data.get("data_capture", {}).get("git_tag")
-                or extra_keys.get("git_tag")
-                if extra_keys
-                else None,
-            ),
-            task=task,
-            operator_id=data.get("operator_id") or extra_keys.get("operator_id")
-            if extra_keys
-            else None,
-            data=data_obj,
+            version=data.get("version", "1.1"),
+            files=files,
+            context=context,
+            run=run,
+            data_schema=data_schema
         )
-        print(instance)
+        instance.data = data
+        instance.extra_keys = extra_keys or {}
         instance.verify()
         return instance
 
     @classmethod
     def preceding(cls) -> "MetadataV1_0":
-        """
-        Placeholder for automatic chaining conversions.
-        """
         return MetadataV1_0
 
     @classmethod
     def convert(
-        cls,
-        metadata: MetadataBase,
-        extra_keys: Optional[Dict[str, Any]] = None,
-        invert_success: bool = False,
+        cls, metadata: MetadataBase, extra_keys: Optional[Dict[str, Any]] = None
     ) -> "MetadataV1_1":
-        # Assume conversion from MetadataV1_0 to MetadataV1_1.
-        if isinstance(metadata, MetadataV1_1):
+        if isinstance(metadata, cls):
             return metadata
-        elif not isinstance(metadata, cls.preceding()):
-            metadata = cls.preceding().convert(metadata, extra_keys=extra_keys)
+        elif not isinstance(metadata, MetadataV1_0):
+            metadata = MetadataV1_0.convert(metadata, extra_keys)
 
-        old = metadata.data
-
-        def get_val(key: str, default: Any = None):
-            # Use the key directly from the old data or look it up in extra_keys.
-            if key in old and old[key]:
-                return old[key]
-            # WARNING: Duplicate of extra keys assignment
-            if extra_keys and key in extra_keys:
-                return extra_keys[key]
-            return default
-
+        # Convert v1.0 to v1.1 structure
+        old_data = metadata.data.copy()
+        
+        # Transform to new hierarchical structure
         new_data = {
-            # "version": "1.1",
-            "data_files": [get_val("bag_path")],
-            "robot": {
-                "id": get_val("hsr_id", None),
-                "model": get_val("robot_model", None),
-            },
-            "organization": {
-                "id": extra_keys.get("organization_id", None),
-                "name": get_val("location_name", ""),
-            },
-            "location": {
-                "id": extra_keys.get("location_id", None),
-                "name": get_val("location_name", "9f"),
-            },
-            "interface": {
-                "id": get_val("interface_id", None),
-                "name": get_val("interface"),
-                "git_hash": get_val("interface_git_hash", "0" * 40),
-                "git_branch": get_val("interface_git_branch", "master"),
-                "git_tag": get_val("interface_git_tag", None),
-            },
-            "data_capture": {
-                "git_hash": get_val("git_hash", "0" * 40),
-                "git_branch": get_val("git_branch", "master"),
-                "git_tag": get_val("git_tag", None),
-            },
-            "task": {
-                "id": get_val("task_id", None),
-                "template": {
-                    "id": get_val("template_id", None),
-                    "name": get_val("template_name", "default_template"),
-                    "instructions": [
-                        {
-                            "id": None,
-                            "text": instr,
-                        }
-                        for instr in old.get("instructions", [])
-                    ],
-                },
-            },
-            "operator_id": get_val("operator_id", None),
-            "data": {
-                "segments": [
+            "version": "1.1",
+            "files": [{"type": "rosbag", "name": old_data.get("bag_path", "")}],
+            "context": {
+                "entities": [
+                    {"role": "robot", "id": old_data.get("hsr_id", "")},
+                    {"role": "location", "name": old_data.get("location_name", "")}
+                ],
+                "components": [
                     {
-                        "start_time": seg.get("start_time"),
-                        "end_time": seg.get("end_time"),
-                        "instruction_index": seg.get("instructions_index"),
-                        "success": not seg.get("has_suboptimal", False)
-                        if not invert_success
-                        else seg.get("has_suboptimal", False),
-                        "is_operator_controlled": seg.get("is_directed"),
+                        "role": "interface",
+                        "name": old_data.get("interface", ""),
+                        "source": {
+                            "git": {
+                                "hash": old_data.get("interface_git_hash", ""),
+                                "branch": old_data.get("interface_git_branch", "")
+                            }
+                        }
+                    },
+                    {
+                        "role": "data_collection",
+                        "name": "rosbag_manager",
+                        "source": {
+                            "git": {
+                                "hash": old_data.get("git_hash", ""),
+                                "branch": old_data.get("git_branch", "")
+                            }
+                        }
                     }
-                    for seg in old.get("segments", [])
                 ]
             },
+            "run": {
+                "total_time_s": max([seg.end_time for seg in metadata.segments], default=0.0) - min([seg.start_time for seg in metadata.segments], default=0.0) if metadata.segments else 0.0,  # Calculate from segments
+                "episode_label": old_data.get("label"),  # Map v1.0 label to episode_label
+                "instructions": [
+                    {"idx": i, "text": instr} 
+                    for i, instr in enumerate(old_data.get("instructions", []))
+                ],
+                "segments": [
+                    {
+                        "start_time": seg.start_time,
+                        "end_time": seg.end_time, 
+                        "instruction_idx": seg.instructions_index,
+                        "success": not seg.has_suboptimal,
+                        "controlled_by": "operator" if seg.is_directed else "auto"
+                    }
+                    for seg in metadata.segments
+                ]
+            }
         }
-        logger.info("Converting MetadataV1_0 to MetadataV1_1...")
-        # WARNING: Duplicate of extra keys assignment
-        return cls.from_dict(new_data, extra_keys=extra_keys)
+        
+        return cls.from_dict(new_data, extra_keys)

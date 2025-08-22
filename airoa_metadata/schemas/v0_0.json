@@ -27,6 +27,10 @@
     "interface_git_branch": {
       "type": "string"
     },
+    "label": {
+      "type": "string",
+      "description": "Optional label for the data collection run."
+    },
     "instructions": {
       "type": "array",
       "items": {

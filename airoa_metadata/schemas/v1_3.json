@@ -64,6 +64,10 @@
           "minimum": 0,
           "description": "Total duration of the run in seconds (rosbag time)."
         },
+        "episode_label": {
+          "type": ["string", "null"],
+          "description": "Optional episode label for this run."
+        },
         "instructions": {
           "type": "array",
           "description": "Ordered list of high-level instructions executed.",

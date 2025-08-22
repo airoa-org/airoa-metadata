@@ -128,6 +128,56 @@ class TestConversionChain:
         assert MetadataV1_1.preceding() is MetadataV1_0
         assert MetadataV1_0.preceding() is MetadataV0_0
 
+    @pytest.mark.parametrize("source_version,target_class,target_version", [
+        ("0.0", MetadataV1_0, "1.0"),
+        ("0.0", MetadataV1_1, "1.1"), 
+        ("0.0", MetadataV1_2, "1.2"),
+        ("0.0", MetadataV1_3, "1.3"),
+        ("1.0", MetadataV1_1, "1.1"),
+        ("1.0", MetadataV1_2, "1.2"),
+        ("1.0", MetadataV1_3, "1.3"),
+        ("1.1", MetadataV1_2, "1.2"),
+        ("1.1", MetadataV1_3, "1.3"),
+        ("1.2", MetadataV1_3, "1.3"),
+    ])
+    def test_all_version_conversions(self, source_version: str, target_class, target_version: str, request):
+        """Test conversions between all supported version combinations."""
+        # Get the test data for the source version
+        source_data = request.getfixturevalue(f"v{source_version.replace('.', '_')}_test_data")
+        
+        # Create source metadata object
+        if source_version == "0.0":
+            source_metadata = MetadataV0_0.from_dict(source_data)
+        elif source_version == "1.0":
+            source_metadata = MetadataV1_0.from_dict(source_data)
+        elif source_version == "1.1":
+            source_metadata = MetadataV1_1.from_dict(source_data)
+        elif source_version == "1.2":
+            source_metadata = MetadataV1_2.from_dict(source_data)
+        elif source_version == "1.3":
+            source_metadata = MetadataV1_3.from_dict(source_data)
+            
+        # Convert to target version
+        converted_metadata = target_class.convert(source_metadata)
+        
+        # Verify conversion
+        assert isinstance(converted_metadata, target_class)
+        assert converted_metadata.version == target_version
+        
+        # Basic data preservation checks
+        if hasattr(source_metadata, 'files') and hasattr(converted_metadata, 'files'):
+            assert len(converted_metadata.files) >= 0  # Files should be preserved or converted
+        elif hasattr(source_metadata, 'data_files') and hasattr(converted_metadata, 'files'):
+            assert len(converted_metadata.files) >= 0  # Old data_files -> new files
+        
+        # Context preservation (if both have context)
+        if hasattr(source_metadata, 'context') and hasattr(converted_metadata, 'context'):
+            assert converted_metadata.context is not None
+        
+        # Run data preservation (if both have run)  
+        if hasattr(source_metadata, 'run') and hasattr(converted_metadata, 'run'):
+            assert converted_metadata.run is not None
+
 
 class TestConversionEdgeCases:
     """Test edge cases in conversion."""

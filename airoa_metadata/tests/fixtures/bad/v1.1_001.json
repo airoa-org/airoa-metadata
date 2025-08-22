@@ -1,36 +1,35 @@
 {
   "version": "1.1",
-  "bag_path": "eggplant",
-  "robot_id": "hsrc49",
-  "id": null,
-  "organization": {
-    "id": null,
-    "name": "tmc"
-  },
-  "location": {
-    "id": null,
-    "name": "tmc"
-  },
-  "data_capture": {
-    "git_hash": "3a5967e63b1a0ef860c4567af66ec6ef0ae576ca",
-    "git_branch": "main",
-    "git_tag": null
-  },
-  "task": {
-    "id": null,
-    "template": {
-      "id": null,
-      "name": "default_template",
-      "instructions": [
-        {
-          "id": null,
-          "text": ["Grasp the eggplant."]
-        }
-      ]
+  "files": [
+    {
+      "type": "rosbag",
+      "name": "eggplant.bag"
     }
+  ],
+  "context": {
+    "entities": [
+      {
+        "role": "robot",
+        "id": "hsrc49"
+      },
+      {
+        "role": "location",
+        "name": "tmc"
+      },
+      {
+        "role": "organization",
+        "name": "tmc"
+      }
+    ]
   },
-  "operator_id": null,
-  "data": {
+  "run": {
+    "total_time_s": 10.0,
+    "instructions": [
+      {
+        "idx": 0,
+        "text": ["Grasp the eggplant."]
+      }
+    ],
     "segments": [
       {
         "start_time": -1,
