@@ -172,7 +172,7 @@ class MetadataV1_3(MetadataBase):
 
         for entity in metadata.context.entities:
             if entity.role == "task":
-                task_entity = entity
+                task_entity = entity  # noqa: F841
                 entities.append(EntityV1_3(role="task-record", id=entity.id))
                 if entity.template:
                     entities.append(
@@ -201,7 +201,7 @@ class MetadataV1_3(MetadataBase):
                 ComponentV1_3(role=comp.role, name=comp.name, source=source)
             )
 
-        context = ContextV1_3(entities=entities, components=components)
+        context = ContextV1_3(entities=entities, components=components)  # noqa: F841
 
         instructions = []
         for instr in metadata.run.instructions:

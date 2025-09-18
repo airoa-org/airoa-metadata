@@ -201,7 +201,7 @@ class TestMetadataLoaderErrorHandling:
 
         # The exact error depends on validation implementation
         # At minimum, it should not crash silently
-        with pytest.raises(Exception):
+        with pytest.raises(Exception):  # noqa: B017
             MetadataLoader.load_from_dict(malformed_data)
 
     def test_load_with_none_data(self):

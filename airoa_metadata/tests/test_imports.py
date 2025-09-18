@@ -201,9 +201,9 @@ class TestImportErrors:
     def test_nonexistent_version_import_fails(self):
         """Test that importing a non-existent version fails."""
         with pytest.raises(ImportError):
-            from airoa_metadata.versions.v2_0 import MetadataV2_0
+            from airoa_metadata.versions.v2_0 import MetadataV2_0  # noqa: F401
 
     def test_nonexistent_module_import_fails(self):
         """Test that importing from non-existent module fails."""
         with pytest.raises(ImportError):
-            from airoa_metadata.nonexistent import SomeClass
+            from airoa_metadata.nonexistent import SomeClass  # noqa: F401

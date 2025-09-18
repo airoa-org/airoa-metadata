@@ -116,10 +116,10 @@ class MetadataLoader:
             with open(file_path, "r") as f:
                 data = json.load(f)
         except FileNotFoundError:
-            raise FileNotFoundError(f"File not found: {file_path}")
+            raise FileNotFoundError(f"File not found: {file_path}") from None
         except json.JSONDecodeError as e:
             raise json.JSONDecodeError(
                 f"Invalid JSON in file {file_path}", e.doc, e.pos
-            )
+            ) from e
 
         return cls.load_from_dict(data, extra_keys=extra_keys, verify=verify)

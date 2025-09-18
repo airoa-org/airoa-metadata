@@ -244,7 +244,7 @@ class TestVersionValidation:
             "context": {"entities": "not_a_list"},  # Should be a list
         }
 
-        with pytest.raises(Exception):
+        with pytest.raises(Exception):  # noqa: B017
             MetadataV1_3.from_dict(invalid_data)
 
 

@@ -215,7 +215,7 @@ class MetadataV1_2(MetadataBase):
                 ComponentV1_2(role=comp.role, name=comp.name, source=source)
             )
 
-        context = ContextV1_2(entities=entities, components=components)
+        context = ContextV1_2(entities=entities, components=components)  # noqa: F841
 
         instructions = [
             InstructionV1_2(idx=instr.idx, text=instr.text)
