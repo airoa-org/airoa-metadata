@@ -52,7 +52,7 @@ pip install -e .
 ### Basic Usage
 
 ```python
-from airoa_metadata import MetadataV1_3, MetadataLoader
+from airoa_metadata import MetadataV1_2, MetadataV1_3, MetadataLoader
 
 # Load metadata from a JSON file
 metadata = MetadataLoader.load_from_file("metadata.json")
@@ -67,9 +67,16 @@ data = {
 }
 metadata = MetadataV1_3.from_dict(data)
 
-# Convert between versions
-from airoa_metadata.versions import MetadataV1_2
-v1_2_metadata = MetadataV1_2.convert(metadata)
+# Convert from older to newer version
+v1_2_data = {
+    "uuid": "123e4567-e89b-12d3-a456-426614174000",
+    "version": "1.2",
+    "files": [{"type": "rosbag", "name": "data.bag"}],
+    "context": {"entities": [], "components": []},
+    "run": {"total_time_s": 10.0, "instructions": [], "segments": []}
+}
+v1_2_metadata = MetadataV1_2.from_dict(v1_2_data)
+v1_3_metadata = MetadataV1_3.convert(v1_2_metadata)  # Convert to v1.3
 ```
 
 ## Supported Versions
@@ -103,26 +110,21 @@ metadata = MetadataV1_3.from_dict(data)
 ### Schema Validation
 
 ```python
-from airoa_metadata.core import MetadataLoader
+from airoa_metadata import MetadataLoader
 
 # Automatic validation when loading
+data = {
+    "uuid": "123e4567-e89b-12d3-a456-426614174000",
+    "version": "1.3",
+    "files": [{"type": "rosbag", "name": "data.bag"}],
+    "context": {"entities": [], "components": []},
+    "run": {"total_time_s": 10.0, "instructions": [], "segments": []}
+}
 try:
     metadata = MetadataLoader.load_from_dict(data)
     print(f"Loaded valid {metadata.version} metadata")
 except Exception as e:
     print(f"Validation failed: {e}")
-```
-
-### Version Conversion
-
-```python
-# Convert from older to newer version
-old_metadata = MetadataV1_0.from_dict(old_data)
-new_metadata = MetadataV1_3.convert(old_metadata)
-
-# Convert from newer to older version (with potential data loss)
-latest_metadata = MetadataV1_3.from_dict(latest_data)
-older_metadata = MetadataV1_1.convert(latest_metadata)
 ```
 
 ## Development

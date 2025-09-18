@@ -67,9 +67,16 @@ data = {
 }
 metadata = MetadataV1_3.from_dict(data)
 
-# バージョン間の変換
-from airoa_metadata.versions import MetadataV1_2
-v1_2_metadata = MetadataV1_2.convert(metadata)
+# 古いバージョンから新しいバージョンへの変換
+v1_2_data = {
+    "uuid": "123e4567-e89b-12d3-a456-426614174000",
+    "version": "1.2",
+    "files": [{"type": "rosbag", "name": "data.bag"}],
+    "context": {"entities": [], "components": []},
+    "run": {"total_time_s": 10.0, "instructions": [], "segments": []}
+}
+v1_2_metadata = MetadataV1_2.from_dict(v1_2_data)
+v1_3_metadata = MetadataV1_3.convert(v1_2_metadata)  # v1.3に変換
 ```
 
 ## サポートバージョン
@@ -103,26 +110,21 @@ metadata = MetadataV1_3.from_dict(data)
 ### スキーマ検証
 
 ```python
-from airoa_metadata.core import MetadataLoader
+from airoa_metadata import MetadataLoader
 
 # 読み込み時の自動検証
+data = {
+    "uuid": "123e4567-e89b-12d3-a456-426614174000",
+    "version": "1.3",
+    "files": [{"type": "rosbag", "name": "data.bag"}],
+    "context": {"entities": [], "components": []},
+    "run": {"total_time_s": 10.0, "instructions": [], "segments": []}
+}
 try:
     metadata = MetadataLoader.load_from_dict(data)
     print(f"有効な {metadata.version} メタデータを読み込みました")
 except Exception as e:
     print(f"検証に失敗しました: {e}")
-```
-
-### バージョン変換
-
-```python
-# 古いバージョンから新しいバージョンへの変換
-old_metadata = MetadataV1_0.from_dict(old_data)
-new_metadata = MetadataV1_3.convert(old_metadata)
-
-# 新しいバージョンから古いバージョンへの変換（データ損失の可能性あり）
-latest_metadata = MetadataV1_3.from_dict(latest_data)
-older_metadata = MetadataV1_1.convert(latest_metadata)
 ```
 
 ## 開発
