@@ -1,7 +1,7 @@
 # AIROA メタデータ
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.8+](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![PyPI version](https://badge.fury.io/py/airoa-metadata.svg)](https://badge.fury.io/py/airoa-metadata)
 
 > ロボットデータ収集のためのバージョン管理されたメタデータスキーマを扱うPythonライブラリ。バージョン間のシームレスな変換と堅牢な検証機能を提供します。
@@ -17,14 +17,14 @@ AIROA メタデータは、ロボットデータ収集のための**統一され
 - 🔀 **自動変換** - 異なるメタデータバージョン間でのシームレスな変換
 - ✅ **JSON スキーマ検証** - 定義されたJSONスキーマに対する堅牢な検証
 - 🔒 **型安全性** - 完全な型ヒントとデータクラスベースの実装
-- 🐍 **Python 3.10+ 互換** - 最新のPythonバージョンで動作
+- 🐍 **Python 3.8+ 互換** - 最新のPythonバージョンで動作
 - 📦 **拡張可能なアーキテクチャ** - 新しいバージョンや機能の追加が容易
 
 ## クイックスタート
 
 ### 前提条件
 
-- Python 3.10 以上
+- Python 3.8 以上
 - pip または uv パッケージマネージャー
 
 ### インストール

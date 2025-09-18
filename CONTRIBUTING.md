@@ -97,7 +97,7 @@ Thank you for your interest in contributing to AIROA Metadata! This document pro
 
 ## Code Standards
 
-- **Python 3.10+** compatible
+- **Python 3.8+** compatible
 - **Type hints** required for new code
 - **Tests** required for new functionality
 - **Format**: Code must pass `make format`

@@ -1,7 +1,7 @@
 # AIROA Metadata
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.8+](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![PyPI version](https://badge.fury.io/py/airoa-metadata.svg)](https://badge.fury.io/py/airoa-metadata)
 
 > A Python library for handling versioned metadata schemas for robotic data collection, providing seamless conversion between versions and robust validation.
@@ -17,14 +17,14 @@ AIROA Metadata provides a **unified and versioned metadata schema system** for r
 - 🔀 **Automatic Conversion** - Seamless conversion between different metadata versions
 - ✅ **JSON Schema Validation** - Robust validation against defined JSON schemas
 - 🔒 **Type Safety** - Full type hints and dataclass-based implementations
-- 🐍 **Python 3.10+ Compatible** - Works with modern Python versions
+- 🐍 **Python 3.8+ Compatible** - Works with modern Python versions
 - 📦 **Extensible Architecture** - Easy to add new versions and features
 
 ## Quick Start
 
 ### Prerequisites
 
-- Python 3.10 or higher
+- Python 3.8 or higher
 - pip or uv package manager
 
 ### Installation
