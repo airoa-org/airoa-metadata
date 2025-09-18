@@ -17,10 +17,10 @@ furnished to do so, subject to the following conditions:
 3. This notice may not be removed or altered from any source distribution.
 """
 
-import logging
-import json
-from typing import Any, Dict, Optional, Type, TypeVar
 import dataclasses
+import json
+import logging
+from typing import Any, Dict, Optional, Type, TypeVar
 
 T = TypeVar("T", bound="MetadataBase")
 

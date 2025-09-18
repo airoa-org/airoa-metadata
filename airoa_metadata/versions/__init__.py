@@ -46,7 +46,7 @@ MetadataLatest = MetadataV1_3
 __all__ = [
     "MetadataV0_0",
     "MetadataV1_0",
-    "MetadataV1_1", 
+    "MetadataV1_1",
     "MetadataV1_2",
     "MetadataV1_3",
     "MetadataLatest",

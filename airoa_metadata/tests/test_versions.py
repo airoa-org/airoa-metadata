@@ -4,8 +4,9 @@ Test version-specific functionality for AIROA Metadata Library.
 """
 
 import json
+from typing import Any, Dict
+
 import pytest
-from typing import Dict, Any
 
 from airoa_metadata.versions import (
     MetadataV0_0,
@@ -238,9 +239,9 @@ class TestVersionValidation:
     def test_invalid_data_handling(self):
         """Test handling of invalid data."""
         invalid_data = {
-            "version": "1.3", 
+            "version": "1.3",
             "files": "not_a_list",  # Should be a list
-            "context": {"entities": "not_a_list"}  # Should be a list
+            "context": {"entities": "not_a_list"},  # Should be a list
         }
 
         with pytest.raises(Exception):
@@ -270,4 +271,3 @@ class TestVersionProperties:
             if task_entity.template:
                 assert hasattr(task_entity.template, "name")
                 assert hasattr(task_entity.template, "description")
-

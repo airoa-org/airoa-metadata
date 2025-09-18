@@ -17,14 +17,15 @@ furnished to do so, subject to the following conditions:
 3. This notice may not be removed or altered from any source distribution.
 """
 
-import logging
 import json
+import logging
 import os
 from typing import Any, Dict, Optional
+
 import jsonschema
 
-from .base import MetadataBase
 from ..versions import VERSION_REGISTRY
+from .base import MetadataBase
 
 logger = logging.getLogger(__name__)
 
@@ -52,13 +53,13 @@ class MetadataLoader:
     ) -> MetadataBase:
         if data is None:
             raise TypeError("Data cannot be None")
-        
+
         if not isinstance(data, dict):
             raise TypeError("Data must be a dictionary")
-        
+
         if "version" not in data:
             raise KeyError("Version field not found in metadata")
-        
+
         version = data["version"]
         logger.info(f"Detected metadata version {version}")
 
@@ -69,7 +70,7 @@ class MetadataLoader:
         cls._validate_with_schema(data, version)
         meta_class, _ = version_map[version]
         meta_obj = meta_class.from_dict(data, extra_keys=extra_keys)
-        
+
         return meta_obj
 
     @classmethod
@@ -117,6 +118,8 @@ class MetadataLoader:
         except FileNotFoundError:
             raise FileNotFoundError(f"File not found: {file_path}")
         except json.JSONDecodeError as e:
-            raise json.JSONDecodeError(f"Invalid JSON in file {file_path}", e.doc, e.pos)
-        
+            raise json.JSONDecodeError(
+                f"Invalid JSON in file {file_path}", e.doc, e.pos
+            )
+
         return cls.load_from_dict(data, extra_keys=extra_keys, verify=verify)

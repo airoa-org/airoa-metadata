@@ -110,49 +110,49 @@ class MetadataV1_1(MetadataBase):
         cls, data: Dict[str, Any], extra_keys: Optional[Dict[str, Any]] = None
     ) -> "MetadataV1_1":
         files = [FileV1_1(**file_data) for file_data in data.get("files", [])]
-        
+
         entities = []
         for entity_data in data.get("context", {}).get("entities", []):
             entities.append(EntityV1_1(**entity_data))
-        
+
         components = []
         for comp_data in data.get("context", {}).get("components", []):
             git_data = comp_data["source"]["git"]
             git_source = GitSourceV1_1(**git_data)
             source = SourceV1_1(git=git_source)
-            components.append(ComponentV1_1(
-                role=comp_data["role"],
-                name=comp_data["name"],
-                source=source
-            ))
-        
+            components.append(
+                ComponentV1_1(
+                    role=comp_data["role"], name=comp_data["name"], source=source
+                )
+            )
+
         context = ContextV1_1(entities=entities, components=components)
-        
+
         instructions = []
         for instr_data in data.get("run", {}).get("instructions", []):
             instructions.append(InstructionV1_1(**instr_data))
-        
+
         segments = []
         for seg_data in data.get("run", {}).get("segments", []):
             segments.append(SegmentV1_1(**seg_data))
-        
+
         run = RunV1_1(
             total_time_s=data.get("run", {}).get("total_time_s", 0.0),
             instructions=instructions,
             segments=segments,
-            episode_label=data.get("run", {}).get("episode_label")
+            episode_label=data.get("run", {}).get("episode_label"),
         )
-        
+
         data_schema = None
         if "data_schema" in data:
             data_schema = DataSchemaV1_1(**data["data_schema"])
-        
+
         instance = cls(
             version=data.get("version", "1.1"),
             files=files,
             context=context,
             run=run,
-            data_schema=data_schema
+            data_schema=data_schema,
         )
         instance.data = data
         instance.extra_keys = extra_keys or {}
@@ -174,7 +174,7 @@ class MetadataV1_1(MetadataBase):
 
         # Convert v1.0 to v1.1 structure
         old_data = metadata.data.copy()
-        
+
         # Transform to new hierarchical structure
         new_data = {
             "version": "1.1",
@@ -182,7 +182,7 @@ class MetadataV1_1(MetadataBase):
             "context": {
                 "entities": [
                     {"role": "robot", "id": old_data.get("hsr_id", "")},
-                    {"role": "location", "name": old_data.get("location_name", "")}
+                    {"role": "location", "name": old_data.get("location_name", "")},
                 ],
                 "components": [
                     {
@@ -191,9 +191,9 @@ class MetadataV1_1(MetadataBase):
                         "source": {
                             "git": {
                                 "hash": old_data.get("interface_git_hash", ""),
-                                "branch": old_data.get("interface_git_branch", "")
+                                "branch": old_data.get("interface_git_branch", ""),
                             }
-                        }
+                        },
                     },
                     {
                         "role": "data_collection",
@@ -201,30 +201,37 @@ class MetadataV1_1(MetadataBase):
                         "source": {
                             "git": {
                                 "hash": old_data.get("git_hash", ""),
-                                "branch": old_data.get("git_branch", "")
+                                "branch": old_data.get("git_branch", ""),
                             }
-                        }
-                    }
-                ]
+                        },
+                    },
+                ],
             },
             "run": {
-                "total_time_s": max([seg.end_time for seg in metadata.segments], default=0.0) - min([seg.start_time for seg in metadata.segments], default=0.0) if metadata.segments else 0.0,  # Calculate from segments
-                "episode_label": old_data.get("label"),  # Map v1.0 label to episode_label
+                "total_time_s": max(
+                    [seg.end_time for seg in metadata.segments], default=0.0
+                )
+                - min([seg.start_time for seg in metadata.segments], default=0.0)
+                if metadata.segments
+                else 0.0,  # Calculate from segments
+                "episode_label": old_data.get(
+                    "label"
+                ),  # Map v1.0 label to episode_label
                 "instructions": [
-                    {"idx": i, "text": instr} 
+                    {"idx": i, "text": instr}
                     for i, instr in enumerate(old_data.get("instructions", []))
                 ],
                 "segments": [
                     {
                         "start_time": seg.start_time,
-                        "end_time": seg.end_time, 
+                        "end_time": seg.end_time,
                         "instruction_idx": seg.instructions_index,
                         "success": not seg.has_suboptimal,
-                        "controlled_by": "operator" if seg.is_directed else "auto"
+                        "controlled_by": "operator" if seg.is_directed else "auto",
                     }
                     for seg in metadata.segments
-                ]
-            }
+                ],
+            },
         }
-        
+
         return cls.from_dict(new_data, extra_keys)

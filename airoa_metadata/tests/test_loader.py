@@ -4,10 +4,10 @@ Test MetadataLoader functionality for AIROA Metadata Library.
 """
 
 import json
-import pytest
-from pathlib import Path
-from typing import Dict, Any
+from typing import Any, Dict
 from unittest.mock import mock_open, patch
+
+import pytest
 
 from airoa_metadata.core.loader import MetadataLoader
 from airoa_metadata.versions import (
@@ -253,4 +253,3 @@ class TestMetadataLoaderIntegration:
             assert metadata2.version == metadata1.version
             assert metadata2.uuid == metadata1.uuid
             assert len(metadata2.files) == len(metadata1.files)
-

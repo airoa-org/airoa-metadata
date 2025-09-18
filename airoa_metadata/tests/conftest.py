@@ -4,9 +4,10 @@ Shared test fixtures and configuration for AIROA Metadata Library tests.
 """
 
 import json
-import pytest
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any, Dict
+
+import pytest
 
 
 @pytest.fixture
