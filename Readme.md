@@ -8,6 +8,7 @@
 
 ## Overview
 
+**Currently under active development. Expect changes in API and command line arguments.**  
 AIROA Metadata provides a **unified and versioned metadata schema system** for robotic data collection. It enables researchers and developers to manage metadata across different versions with automatic conversion capabilities, ensuring backward compatibility and data consistency throughout the robot learning pipeline.
 
 ## Key Features
