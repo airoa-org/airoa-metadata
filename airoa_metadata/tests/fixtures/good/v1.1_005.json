@@ -1,0 +1,136 @@
+{
+  "version": "1.1",
+  "files": [
+    {
+      "type": "rosbag",
+      "name": "example_task.bag"
+    }
+  ],
+  "context": {
+    "entities": [
+      {
+        "role": "robot",
+        "id": "robot001"
+      },
+      {
+        "role": "operator",
+        "id": "operator001"
+      },
+      {
+        "role": "location",
+        "name": "test_location"
+      },
+      {
+        "role": "organization",
+        "name": "lab1"
+      },
+      {
+        "role": "task",
+        "id": "task-001",
+        "template": {
+          "name": "Small can restock",
+          "description": "Take one small can from the container and stock it on the shelf."
+        }
+      }
+    ],
+    "components": [
+      {
+        "role": "interface",
+        "name": "hsr_leader_teleop",
+        "source": {
+          "git": {
+            "hash": "",
+            "branch": "",
+            "tag": null
+          }
+        }
+      },
+      {
+        "role": "data_capture",
+        "name": "rosbag_manager",
+        "source": {
+          "git": {
+            "hash": "",
+            "branch": "",
+            "tag": null
+          }
+        }
+      }
+    ]
+  },
+  "data_schema": {
+    "uri": "https://example.com/schemas/example_schema.json"
+  },
+  "run": {
+    "total_time_s": 145.95427894592285,
+    "instructions": [
+      {
+        "idx": 0,
+        "text": [
+          "Navigate to container"
+        ]
+      },
+      {
+        "idx": 1,
+        "text": [
+          "Grab one small can"
+        ]
+      },
+      {
+        "idx": 2,
+        "text": [
+          "Go back to shelf"
+        ]
+      },
+      {
+        "idx": 3,
+        "text": [
+          "Place small can on shelf"
+        ]
+      },
+      {
+        "idx": 4,
+        "text": [
+          "Return to charging station"
+        ]
+      }
+    ],
+    "segments": [
+      {
+        "start_time": 0,
+        "end_time": 13.177878379821777,
+        "instruction_idx": 0,
+        "success": true,
+        "controlled_by": "operator"
+      },
+      {
+        "start_time": 13.301057577133179,
+        "end_time": 61.1083402633667,
+        "instruction_idx": 1,
+        "success": true,
+        "controlled_by": "operator"
+      },
+      {
+        "start_time": 61.213884592056274,
+        "end_time": 86.2118456363678,
+        "instruction_idx": 2,
+        "success": true,
+        "controlled_by": "operator"
+      },
+      {
+        "start_time": 86.29844999313354,
+        "end_time": 133.75561690330505,
+        "instruction_idx": 3,
+        "success": true,
+        "controlled_by": "operator"
+      },
+      {
+        "start_time": 133.7958161830902,
+        "end_time": 145.95427894592285,
+        "instruction_idx": 4,
+        "success": false,
+        "controlled_by": "operator"
+      }
+    ]
+  }
+}  
