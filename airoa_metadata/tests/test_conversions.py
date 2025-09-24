@@ -322,7 +322,7 @@ class TestConversionMetadata:
         assert len(v1_3_metadata.files) == len(v1_2_metadata.files)
 
         for v1_2_file, v1_3_file in zip(
-            v1_2_metadata.files, v1_3_metadata.files, strict=False
+            v1_2_metadata.files, v1_3_metadata.files
         ):
             assert v1_3_file.type == v1_2_file.type
             assert v1_3_file.name == v1_2_file.name
