@@ -1,43 +1,58 @@
-# AIROA Metadata Library
+# AIROA Metadata
 
-A Python library for handling versioned metadata for robotic data collection. This library provides dataclass-based representations of different metadata schema versions with automatic conversion between versions.
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Python 3.8+](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![PyPI version](https://badge.fury.io/py/airoa-metadata.svg)](https://badge.fury.io/py/airoa-metadata)
 
-## Features
+> A Python library for handling versioned metadata schemas for robotic data collection, providing seamless conversion between versions and robust validation.
 
-- **Multiple Schema Versions**: Support for metadata versions 0.0, 1.0, 1.1, 1.2, and 1.3
-- **Automatic Conversion**: Convert between different metadata versions seamlessly
-- **JSON Schema Validation**: Validate metadata against JSON schemas
-- **Type Safety**: Full type hints and dataclass-based implementations
-- **Python 3.8+ Compatible**: Works with modern Python versions
+## Overview
 
-## Installation
+**Currently under active development. Expect changes in API and command line arguments.**  
+AIROA Metadata provides a **unified and versioned metadata schema system** for robotic data collection. It enables researchers and developers to manage metadata across different versions with automatic conversion capabilities, ensuring backward compatibility and data consistency throughout the robot learning pipeline.
 
-### From Source
+## Key Features
+
+- 🔄 **Version Management** - Support for multiple schema versions (0.0, 1.0, 1.1, 1.2, 1.3)
+- 🔀 **Automatic Conversion** - Seamless conversion between different metadata versions
+- ✅ **JSON Schema Validation** - Robust validation against defined JSON schemas
+- 🔒 **Type Safety** - Full type hints and dataclass-based implementations
+- 🐍 **Python 3.8+ Compatible** - Works with modern Python versions
+- 📦 **Extensible Architecture** - Easy to add new versions and features
+
+## Quick Start
+
+### Prerequisites
+
+- Python 3.8 or higher
+- pip or uv package manager
+
+### Installation
+
+#### Using pip
+
+```bash
+pip install airoa-metadata
+```
+
+#### From Source
 
 ```bash
 # Clone the repository
 git clone https://github.com/airoa-org/airoa-metadata.git
 cd airoa-metadata
 
-# Install in development mode
+# Install with uv (recommended)
+uv sync
+
+# Or install with pip
 pip install -e .
-
-# Or install with dev dependencies
-pip install -e .[dev]
 ```
-
-### Using pip (when published)
-
-```bash
-pip install airoa-metadata
-```
-
-## Quick Start
 
 ### Basic Usage
 
 ```python
-from airoa_metadata import MetadataV1_3, MetadataLoader
+from airoa_metadata import MetadataV1_2, MetadataV1_3, MetadataLoader
 
 # Load metadata from a JSON file
 metadata = MetadataLoader.load_from_file("metadata.json")
@@ -52,10 +67,29 @@ data = {
 }
 metadata = MetadataV1_3.from_dict(data)
 
-# Convert between versions
-from airoa_metadata.versions import MetadataV1_2
-v1_2_metadata = MetadataV1_2.convert(metadata)
+# Convert from older to newer version
+v1_2_data = {
+    "uuid": "123e4567-e89b-12d3-a456-426614174000",
+    "version": "1.2",
+    "files": [{"type": "rosbag", "name": "data.bag"}],
+    "context": {"entities": [], "components": []},
+    "run": {"total_time_s": 10.0, "instructions": [], "segments": []}
+}
+v1_2_metadata = MetadataV1_2.from_dict(v1_2_data)
+v1_3_metadata = MetadataV1_3.convert(v1_2_metadata)  # Convert to v1.3
 ```
+
+## Supported Versions
+
+| Version | Features | Status |
+|---------|----------|---------|
+| 0.0 | Basic metadata structure | ✅ Stable |
+| 1.0 | Enhanced with task templates | ✅ Stable |
+| 1.1 | Improved segment tracking | ✅ Stable |
+| 1.2 | Unified entity structure with task templates | ✅ Stable |
+| 1.3 | Split task entities into task-record and task-template | ✅ Stable |
+
+## Usage Examples
 
 ### Working with Specific Versions
 
@@ -76,9 +110,16 @@ metadata = MetadataV1_3.from_dict(data)
 ### Schema Validation
 
 ```python
-from airoa_metadata.core import MetadataLoader
+from airoa_metadata import MetadataLoader
 
 # Automatic validation when loading
+data = {
+    "uuid": "123e4567-e89b-12d3-a456-426614174000",
+    "version": "1.3",
+    "files": [{"type": "rosbag", "name": "data.bag"}],
+    "context": {"entities": [], "components": []},
+    "run": {"total_time_s": 10.0, "instructions": [], "segments": []}
+}
 try:
     metadata = MetadataLoader.load_from_dict(data)
     print(f"Loaded valid {metadata.version} metadata")
@@ -86,15 +127,52 @@ except Exception as e:
     print(f"Validation failed: {e}")
 ```
 
-## Supported Versions
+## Development
 
-| Version | Features |
-|---------|----------|
-| 0.0 | Basic metadata structure |
-| 1.0 | Enhanced with task templates |
-| 1.1 | Improved segment tracking |
-| 1.2 | Unified entity structure with task templates |
-| 1.3 | Split task entities into task-record and task-template |
+### Development Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/airoa-org/airoa-metadata.git
+cd airoa-metadata
+
+# Initialize submodules and install dependencies
+git submodule update --init --recursive
+GIT_LFS_SKIP_SMUDGE=1 uv sync
+```
+
+### Code Quality
+
+```bash
+# Format code
+make format
+
+# Run linting (ruff + mypy)
+make lint
+
+# Run tests
+make test
+
+# Run tests with coverage
+make test-coverage
+```
+
+### Available Make Commands
+
+- `make format` - Format code with ruff
+- `make lint` - Run linting checks (ruff + mypy)
+- `make test` - Run all unit tests
+- `make test-coverage` - Run tests with coverage report
+
+### Testing
+
+```bash
+# Run specific test
+uv run pytest airoa_metadata/tests/test_versions.py -v
+
+# Run with coverage
+make test-coverage
+```
 
 ## Library Structure
 
@@ -114,52 +192,36 @@ airoa_metadata/
 └── tests/                 # Test suite
 ```
 
-## Development
+## Troubleshooting
 
-### Setting up Development Environment
+### Common Issues
 
-```bash
-# Clone and install in development mode
-git clone https://github.com/airoa-org/airoa-metadata.git
-cd airoa-metadata
-pip install -e .[dev]
+1. **Import errors**: Ensure you've installed the package correctly with `uv sync` or `pip install -e .`
+2. **Validation errors**: Check that your metadata follows the correct schema for the version
+3. **Version conversion errors**: Some conversions may lose data when going to older versions
 
-# Run tests
-pytest
+### Getting Help
 
-# Run linting
-black airoa_metadata/
-isort airoa_metadata/
-flake8 airoa_metadata/
-mypy airoa_metadata/
-```
-
-### Running Tests
-
-```bash
-# Run all tests
-pytest
-
-# Run specific test files
-pytest airoa_metadata/tests/test_versions.py
-```
-
-## License
-
-This software is provided "as-is", without any express or implied warranty.
-See the source code for full license terms.
+- 🐛 Report issues on [GitHub Issues](https://github.com/airoa-org/airoa-metadata/issues)
 
 ## Contributing
 
+We welcome contributions! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
+
+**Quick start:**
+
 1. Fork the repository
 2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Run the test suite
-6. Submit a pull request
+3. Make your changes and add tests
+4. Run quality checks: `make format && make lint && make test`
+5. Open a Pull Request
 
-## Support
+📋 **For detailed instructions, development setup, and guidelines, please see our [Contributing Guide](CONTRIBUTING.md).**
 
-- **Issues**: [GitHub Issues](https://github.com/airoa-org/airoa-metadata/issues)
-- **Documentation**: [Read the Docs](https://airoa-metadata.readthedocs.io/)
-- **Email**: For questions about usage or development
+## License
+
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+
+---
+
+Made with ❤️ by the [AIRoA Team](https://github.com/airoa-org)

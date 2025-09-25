@@ -105,47 +105,47 @@ class MetadataV1_3(MetadataBase):
         cls, data: Dict[str, Any], extra_keys: Optional[Dict[str, Any]] = None
     ) -> "MetadataV1_3":
         files = [FileV1_3(**file_data) for file_data in data.get("files", [])]
-        
+
         entities = []
         for entity_data in data.get("context", {}).get("entities", []):
             entities.append(EntityV1_3(**entity_data))
-        
+
         components = []
         for comp_data in data.get("context", {}).get("components", []):
             git_data = comp_data["source"]["git"]
             git_source = GitSourceV1_3(**git_data)
             source = SourceV1_3(git=git_source)
-            components.append(ComponentV1_3(
-                role=comp_data["role"],
-                name=comp_data["name"],
-                source=source
-            ))
-        
+            components.append(
+                ComponentV1_3(
+                    role=comp_data["role"], name=comp_data["name"], source=source
+                )
+            )
+
         context = ContextV1_3(entities=entities, components=components)
-        
+
         instructions = []
         for instr_data in data.get("run", {}).get("instructions", []):
             instructions.append(InstructionV1_3(**instr_data))
-        
+
         segments = []
         for seg_data in data.get("run", {}).get("segments", []):
             segments.append(SegmentV1_3(**seg_data))
-        
+
         run = RunV1_3(
             total_time_s=data.get("run", {}).get("total_time_s", 0.0),
             instructions=instructions,
             segments=segments,
-            episode_label=data.get("run", {}).get("episode_label")
+            episode_label=data.get("run", {}).get("episode_label"),
         )
-        
+
         instance = cls(
             uuid=data.get("uuid", ""),
             version=data.get("version", "1.3"),
             files=files,
             context=context,
-            run=run
+            run=run,
         )
-        
+
         instance.verify()
         return instance
 
@@ -166,80 +166,84 @@ class MetadataV1_3(MetadataBase):
             metadata = cls.preceding().convert(metadata, extra_keys=extra_keys)
 
         files = [FileV1_3(type=file.type, name=file.name) for file in metadata.files]
-        
+
         entities = []
         task_entity = None
-        
+
         for entity in metadata.context.entities:
             if entity.role == "task":
-                task_entity = entity
+                task_entity = entity  # noqa: F841
                 entities.append(EntityV1_3(role="task-record", id=entity.id))
                 if entity.template:
-                    entities.append(EntityV1_3(
-                        role="task-template",
-                        id=f"{entity.id}-template" if entity.id else "template-1",
-                        name=entity.template.name,
-                        description=entity.template.description
-                    ))
+                    entities.append(
+                        EntityV1_3(
+                            role="task-template",
+                            id=f"{entity.id}-template" if entity.id else "template-1",
+                            name=entity.template.name,
+                            description=entity.template.description,
+                        )
+                    )
             else:
-                entities.append(EntityV1_3(
-                    role=entity.role,
-                    id=entity.id,
-                    name=entity.name
-                ))
-        
+                entities.append(
+                    EntityV1_3(role=entity.role, id=entity.id, name=entity.name)
+                )
+
         components = []
         for comp in metadata.context.components:
             git_source = GitSourceV1_3(
                 uri=comp.source.git.uri,
                 hash=comp.source.git.hash,
                 branch=comp.source.git.branch,
-                tag=comp.source.git.tag
+                tag=comp.source.git.tag,
             )
             source = SourceV1_3(git=git_source)
-            components.append(ComponentV1_3(
-                role=comp.role,
-                name=comp.name,
-                source=source
-            ))
-        
-        context = ContextV1_3(entities=entities, components=components)
-        
+            components.append(
+                ComponentV1_3(role=comp.role, name=comp.name, source=source)
+            )
+
+        context = ContextV1_3(entities=entities, components=components)  # noqa: F841
+
         instructions = []
         for instr in metadata.run.instructions:
             instructions.append(InstructionV1_3(idx=instr.idx, text=instr.text))
-        
+
         segments = []
         for seg in metadata.run.segments:
-            segments.append(SegmentV1_3(
-                start_time=seg.start_time,
-                end_time=seg.end_time,
-                instruction_idx=seg.instruction_idx,
-                success=seg.success,
-                controlled_by=seg.controlled_by,
-                score=seg.score,
-                is_composite=seg.is_composite
-            ))
-        
+            segments.append(
+                SegmentV1_3(
+                    start_time=seg.start_time,
+                    end_time=seg.end_time,
+                    instruction_idx=seg.instruction_idx,
+                    success=seg.success,
+                    controlled_by=seg.controlled_by,
+                    score=seg.score,
+                    is_composite=seg.is_composite,
+                )
+            )
+
         run = RunV1_3(
             total_time_s=metadata.run.total_time_s,
             instructions=instructions,
             segments=segments,
-            episode_label=getattr(metadata.run, 'episode_label', None)
+            episode_label=getattr(metadata.run, "episode_label", None),
         )
-        
+
         new_data = {
             "uuid": metadata.uuid,
             "version": "1.3",
             "files": [{"type": file.type, "name": file.name} for file in files],
             "context": {
                 "entities": [
-                    {k: v for k, v in {
-                        "role": entity.role,
-                        "id": entity.id,
-                        "name": entity.name,
-                        "description": entity.description
-                    }.items() if v is not None}
+                    {
+                        k: v
+                        for k, v in {
+                            "role": entity.role,
+                            "id": entity.id,
+                            "name": entity.name,
+                            "description": entity.description,
+                        }.items()
+                        if v is not None
+                    }
                     for entity in entities
                 ],
                 "components": [
@@ -247,38 +251,45 @@ class MetadataV1_3(MetadataBase):
                         "role": comp.role,
                         "name": comp.name,
                         "source": {
-                            "git": {k: v for k, v in {
-                                "uri": comp.source.git.uri,
-                                "hash": comp.source.git.hash,
-                                "branch": comp.source.git.branch,
-                                "tag": comp.source.git.tag
-                            }.items() if v is not None}
-                        }
+                            "git": {
+                                k: v
+                                for k, v in {
+                                    "uri": comp.source.git.uri,
+                                    "hash": comp.source.git.hash,
+                                    "branch": comp.source.git.branch,
+                                    "tag": comp.source.git.tag,
+                                }.items()
+                                if v is not None
+                            }
+                        },
                     }
                     for comp in components
-                ]
+                ],
             },
             "run": {
                 "total_time_s": run.total_time_s,
                 "episode_label": run.episode_label,
                 "instructions": [
-                    {"idx": instr.idx, "text": instr.text}
-                    for instr in instructions
+                    {"idx": instr.idx, "text": instr.text} for instr in instructions
                 ],
                 "segments": [
-                    {k: v for k, v in {
-                        "start_time": seg.start_time,
-                        "end_time": seg.end_time,
-                        "instruction_idx": seg.instruction_idx,
-                        "success": seg.success,
-                        "controlled_by": seg.controlled_by,
-                        "score": seg.score,
-                        "is_composite": seg.is_composite
-                    }.items() if v is not None}
+                    {
+                        k: v
+                        for k, v in {
+                            "start_time": seg.start_time,
+                            "end_time": seg.end_time,
+                            "instruction_idx": seg.instruction_idx,
+                            "success": seg.success,
+                            "controlled_by": seg.controlled_by,
+                            "score": seg.score,
+                            "is_composite": seg.is_composite,
+                        }.items()
+                        if v is not None
+                    }
                     for seg in segments
-                ]
-            }
+                ],
+            },
         }
-        
+
         logger.info("Converting MetadataV1_2 to MetadataV1_3...")
         return cls.from_dict(new_data, extra_keys=extra_keys)

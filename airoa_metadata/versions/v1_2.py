@@ -112,60 +112,62 @@ class MetadataV1_2(MetadataBase):
         cls, data: Dict[str, Any], extra_keys: Optional[Dict[str, Any]] = None
     ) -> "MetadataV1_2":
         files = [FileV1_2(**file_data) for file_data in data.get("files", [])]
-        
+
         entities = []
         for entity_data in data.get("context", {}).get("entities", []):
             template = None
             if entity_data.get("template"):
                 template = TaskTemplateV1_2(**entity_data["template"])
-            
-            entities.append(EntityV1_2(
-                role=entity_data["role"],
-                id=entity_data.get("id"),
-                name=entity_data.get("name"),
-                template=template
-            ))
-        
+
+            entities.append(
+                EntityV1_2(
+                    role=entity_data["role"],
+                    id=entity_data.get("id"),
+                    name=entity_data.get("name"),
+                    template=template,
+                )
+            )
+
         components = []
         for comp_data in data.get("context", {}).get("components", []):
             git_data = comp_data["source"]["git"]
             git_source = GitSourceV1_2(**git_data)
             source = SourceV1_2(git=git_source)
-            components.append(ComponentV1_2(
-                role=comp_data["role"],
-                name=comp_data["name"],
-                source=source
-            ))
-        
+            components.append(
+                ComponentV1_2(
+                    role=comp_data["role"], name=comp_data["name"], source=source
+                )
+            )
+
         context = ContextV1_2(entities=entities, components=components)
-        
+
         instructions = []
         for instr_data in data.get("run", {}).get("instructions", []):
             instructions.append(InstructionV1_2(**instr_data))
-        
+
         segments = []
         for seg_data in data.get("run", {}).get("segments", []):
             segments.append(SegmentV1_2(**seg_data))
-        
+
         run = RunV1_2(
             total_time_s=data.get("run", {}).get("total_time_s", 0.0),
             instructions=instructions,
             segments=segments,
-            episode_label=data.get("run", {}).get("episode_label")
+            episode_label=data.get("run", {}).get("episode_label"),
         )
-        
+
         instance = cls(
             uuid=data.get("uuid", ""),
             version=data.get("version", "1.2"),
             files=files,
             context=context,
-            run=run
+            run=run,
         )
-        
+
         instance.verify()
         return instance
 
-    @classmethod  
+    @classmethod
     def preceding(cls) -> "MetadataV1_1":
         return MetadataV1_1
 
@@ -182,37 +184,44 @@ class MetadataV1_2(MetadataBase):
             metadata = cls.preceding().convert(metadata, extra_keys=extra_keys)
 
         files = [FileV1_2(type=f.type, name=f.name) for f in metadata.files]
-        
+
         entities = []
         for entity in metadata.context.entities:
             if entity.role == "task" and entity.template:
                 template = TaskTemplateV1_2(
                     name=entity.template.get("name", ""),
-                    description=entity.template.get("description", entity.template.get("name", ""))
+                    description=entity.template.get(
+                        "description", entity.template.get("name", "")
+                    ),
                 )
-                entities.append(EntityV1_2(role="task", id=entity.id, template=template))
+                entities.append(
+                    EntityV1_2(role="task", id=entity.id, template=template)
+                )
             else:
-                entities.append(EntityV1_2(role=entity.role, id=entity.id, name=entity.name))
-        
+                entities.append(
+                    EntityV1_2(role=entity.role, id=entity.id, name=entity.name)
+                )
+
         components = []
         for comp in metadata.context.components:
             git_source = GitSourceV1_2(
                 uri=comp.source.git.uri or "",
                 hash=comp.source.git.hash,
                 branch=comp.source.git.branch,
-                tag=comp.source.git.tag
+                tag=comp.source.git.tag,
             )
             source = SourceV1_2(git=git_source)
-            components.append(ComponentV1_2(
-                role=comp.role,
-                name=comp.name,
-                source=source
-            ))
-        
-        context = ContextV1_2(entities=entities, components=components)
-        
-        instructions = [InstructionV1_2(idx=instr.idx, text=instr.text) for instr in metadata.run.instructions]
-        
+            components.append(
+                ComponentV1_2(role=comp.role, name=comp.name, source=source)
+            )
+
+        context = ContextV1_2(entities=entities, components=components)  # noqa: F841
+
+        instructions = [
+            InstructionV1_2(idx=instr.idx, text=instr.text)
+            for instr in metadata.run.instructions
+        ]
+
         segments = []
         for i, seg in enumerate(metadata.run.segments):
             # Check if this segment overlaps with any other segment (making it composite)
@@ -221,50 +230,62 @@ class MetadataV1_2(MetadataBase):
                 for j, other_seg in enumerate(metadata.run.segments):
                     if i != j:  # Don't compare with itself
                         # Check for overlap: segment A overlaps with B if A.start < B.end and B.start < A.end
-                        if (seg.start_time < other_seg.end_time and 
-                            other_seg.start_time < seg.end_time and
+                        if (
+                            seg.start_time < other_seg.end_time
+                            and other_seg.start_time < seg.end_time
+                            and
                             # Also check if this segment is bigger (longer duration)
-                            (seg.end_time - seg.start_time) > (other_seg.end_time - other_seg.start_time)):
+                            (seg.end_time - seg.start_time)
+                            > (other_seg.end_time - other_seg.start_time)
+                        ):
                             is_composite = True
                             break
-            
-            segments.append(SegmentV1_2(
-                start_time=seg.start_time,
-                end_time=seg.end_time,
-                instruction_idx=seg.instruction_idx,
-                success=seg.success,
-                controlled_by=seg.controlled_by,
-                score=seg.score,
-                is_composite=is_composite
-            ))
-        
+
+            segments.append(
+                SegmentV1_2(
+                    start_time=seg.start_time,
+                    end_time=seg.end_time,
+                    instruction_idx=seg.instruction_idx,
+                    success=seg.success,
+                    controlled_by=seg.controlled_by,
+                    score=seg.score,
+                    is_composite=is_composite,
+                )
+            )
+
         run = RunV1_2(
             total_time_s=metadata.run.total_time_s,
             instructions=instructions,
             segments=segments,
-            episode_label=getattr(metadata.run, 'episode_label', None)
+            episode_label=getattr(metadata.run, "episode_label", None),
         )
-        
+
         # Generate UUID if not present in source metadata or extra_keys
-        metadata_uuid = getattr(metadata, 'uuid', '') or ''
+        metadata_uuid = getattr(metadata, "uuid", "") or ""
         extra_uuid = extra_keys.get("uuid", "") if extra_keys else ""
         final_uuid = metadata_uuid or extra_uuid or str(uuid.uuid4())
-        
+
         new_data = {
             "uuid": final_uuid,
             "version": "1.2",
             "files": [{"type": file.type, "name": file.name} for file in files],
             "context": {
                 "entities": [
-                    {k: v for k, v in {
-                        "role": entity.role,
-                        "id": entity.id,
-                        "name": entity.name,
-                        "template": {
-                            "name": entity.template.name,
-                            "description": entity.template.description
-                        } if entity.template else None
-                    }.items() if v is not None}
+                    {
+                        k: v
+                        for k, v in {
+                            "role": entity.role,
+                            "id": entity.id,
+                            "name": entity.name,
+                            "template": {
+                                "name": entity.template.name,
+                                "description": entity.template.description,
+                            }
+                            if entity.template
+                            else None,
+                        }.items()
+                        if v is not None
+                    }
                     for entity in entities
                 ],
                 "components": [
@@ -272,38 +293,45 @@ class MetadataV1_2(MetadataBase):
                         "role": comp.role,
                         "name": comp.name,
                         "source": {
-                            "git": {k: v for k, v in {
-                                "uri": comp.source.git.uri,
-                                "hash": comp.source.git.hash,
-                                "branch": comp.source.git.branch,
-                                "tag": comp.source.git.tag
-                            }.items() if v is not None}
-                        }
+                            "git": {
+                                k: v
+                                for k, v in {
+                                    "uri": comp.source.git.uri,
+                                    "hash": comp.source.git.hash,
+                                    "branch": comp.source.git.branch,
+                                    "tag": comp.source.git.tag,
+                                }.items()
+                                if v is not None
+                            }
+                        },
                     }
                     for comp in components
-                ]
+                ],
             },
             "run": {
                 "total_time_s": run.total_time_s,
                 "episode_label": run.episode_label,
                 "instructions": [
-                    {"idx": instr.idx, "text": instr.text}
-                    for instr in instructions
+                    {"idx": instr.idx, "text": instr.text} for instr in instructions
                 ],
                 "segments": [
-                    {k: v for k, v in {
-                        "start_time": seg.start_time,
-                        "end_time": seg.end_time,
-                        "instruction_idx": seg.instruction_idx,
-                        "success": seg.success,
-                        "controlled_by": seg.controlled_by,
-                        "score": seg.score,
-                        "is_composite": seg.is_composite
-                    }.items() if v is not None}
+                    {
+                        k: v
+                        for k, v in {
+                            "start_time": seg.start_time,
+                            "end_time": seg.end_time,
+                            "instruction_idx": seg.instruction_idx,
+                            "success": seg.success,
+                            "controlled_by": seg.controlled_by,
+                            "score": seg.score,
+                            "is_composite": seg.is_composite,
+                        }.items()
+                        if v is not None
+                    }
                     for seg in segments
-                ]
-            }
+                ],
+            },
         }
-        
+
         logger.info("Converting MetadataV1_1 to MetadataV1_2...")
         return cls.from_dict(new_data, extra_keys=extra_keys)
