@@ -4,10 +4,10 @@ Test MetadataLoader functionality for AIROA Metadata Library.
 """
 
 import json
-import pytest
-from pathlib import Path
-from typing import Dict, Any
+from typing import Any, Dict
 from unittest.mock import mock_open, patch
+
+import pytest
 
 from airoa_metadata.core.loader import MetadataLoader
 from airoa_metadata.versions import (
@@ -201,7 +201,7 @@ class TestMetadataLoaderErrorHandling:
 
         # The exact error depends on validation implementation
         # At minimum, it should not crash silently
-        with pytest.raises(Exception):
+        with pytest.raises(Exception):  # noqa: B017
             MetadataLoader.load_from_dict(malformed_data)
 
     def test_load_with_none_data(self):
@@ -253,4 +253,3 @@ class TestMetadataLoaderIntegration:
             assert metadata2.version == metadata1.version
             assert metadata2.uuid == metadata1.uuid
             assert len(metadata2.files) == len(metadata1.files)
-

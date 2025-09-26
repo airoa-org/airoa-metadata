@@ -8,7 +8,7 @@ and schema-related utilities.
 
 import json
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any, Dict
 
 
 def get_schema_path(version: str) -> Path:
@@ -32,4 +32,3 @@ __all__ = [
     "load_schema",
     "AVAILABLE_SCHEMAS",
 ]
-
