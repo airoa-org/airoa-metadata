@@ -1,0 +1,75 @@
+{
+    "$schema": "https://raw.githubusercontent.com/airoa-org/airoa-metadata/refs/tags/v2.0/airoa_metadata/schemas/v2_0.json",
+    "schema_version": "2.0",
+    "uuid": "f0d3f012-a96c-477a-a549-407a28788e79",
+    "robot": {
+        "uri": "",
+        "checksum": "",
+        "id": "",
+        "type": "hsrd"
+    },
+    "files": [
+        {
+            "type": "rosbag",
+            "name": "data.bag",
+            "checksum": ""
+        }
+    ],
+    "environment": {
+        "type": "real_world",
+        "site": "TRC",
+        "location": "room_A"
+    },
+    "runner": {
+        "type": "operator",
+        "name": "UkaiYuma"
+    },
+    "devices": [
+        {
+            "role": "controller",
+            "type": "joystick",
+            "id": "joystick001"
+        }
+    ],
+    "programs": [
+        {
+            "role": "teleoperation",
+            "name": "hsr_leader_teleop",
+            "source": {
+                "git": {
+                    "uri": "https://github.com/airoa-org/hsr_leader_teleop.git",
+                    "hash": "175fe5916d4381a03d6ffe27415408b0863f79bd",
+                    "branch": "HEAD"
+                }
+            }
+        },
+        {
+            "role": "data_collection",
+            "name": "hsr_data_collection",
+            "source": {
+                "git": {
+                    "uri": "https://github.com/airoa-org/hsr_data_collection.git",
+                    "hash": "af235cd338bb05bfa445a60acaf0eeefaab26dad",
+                    "branch": "develop"
+                }
+            }
+        }
+    ],
+    "episode": {
+        "start_time": 1760097244.1823,
+        "end_time": 1760097383.5825102,
+        "success": true,
+        "label": ""
+    },
+    "labels": [
+        "Open the freezer"
+    ],
+    "segments": [
+        {
+            "start_time": 1760097244.1823,
+            "end_time": 1760097260.0822883,
+            "label_idx": 0,
+            "success": true
+        }
+    ]
+}
