@@ -21,8 +21,9 @@
         "location": "room_A"
     },
     "runner": {
+        "organization": "airoa",
         "type": "operator",
-        "name": "UkaiYuma"
+        "name": "TarouTanaka"
     },
     "devices": [
         {

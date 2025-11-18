@@ -285,6 +285,10 @@
                     "description": "Name of the runner (e.g. TarouTanaka).",
                     "type": "string"
                 },
+                "organization": {
+                    "description": "Organization of the runner (e.g. airoa).",
+                    "type": "string"
+                },
                 "type": {
                     "description": "Runner type (e.g. operator or model).",
                     "$ref": "#/$defs/RunnerType"
@@ -292,6 +296,7 @@
             },
             "required": [
                 "type",
+                "organization",
                 "name"
             ]
         },
