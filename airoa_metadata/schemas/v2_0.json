@@ -1,0 +1,355 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "MetadataV2_0",
+    "type": "object",
+    "properties": {
+        "$schema": {
+            "description": "JSON Schema URI that defines this metadata document.",
+            "type": "string",
+            "format": "uri"
+        },
+        "devices": {
+            "description": "Teleoperation devices referenced by this run.",
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/Device"
+            },
+            "minItems": 1
+        },
+        "environment": {
+            "description": "Environment context (site, optional location, and type such as real_world or simulation).",
+            "$ref": "#/$defs/Environment"
+        },
+        "episode": {
+            "description": "Episode metadata: start/end timestamps, success flag, and label.",
+            "$ref": "#/$defs/Episode"
+        },
+        "files": {
+            "description": "Input files or artifacts consumed by this run.",
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/File"
+            },
+            "minItems": 1
+        },
+        "labels": {
+            "description": "Ordered list of high-level instructions executed in the run.",
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "programs": {
+            "description": "Programs or services (teleoperation/data logging) active in this run.",
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/Program"
+            },
+            "minItems": 1
+        },
+        "robot": {
+            "description": "Robot identity (URI, type, id) plus optional checksum.",
+            "$ref": "#/$defs/Robot"
+        },
+        "runner": {
+            "description": "Runner identity including type (operator or model) and name.",
+            "$ref": "#/$defs/Runner"
+        },
+        "schema_version": {
+            "description": "Schema version using major.minor notation (e.g. 2.0).",
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+$"
+        },
+        "segments": {
+            "description": "Execution segments aligned with the `labels` order.",
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/Segment"
+            }
+        },
+        "uuid": {
+            "description": "Stable UUID that uniquely identifies this run.",
+            "type": "string",
+            "format": "uuid"
+        }
+    },
+    "required": [
+        "$schema",
+        "schema_version",
+        "uuid",
+        "robot",
+        "files",
+        "environment",
+        "runner",
+        "devices",
+        "programs",
+        "episode",
+        "labels",
+        "segments"
+    ],
+    "$defs": {
+        "Device": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "Device identifier (e.g. joystick001).",
+                    "type": "string"
+                },
+                "role": {
+                    "description": "Role of the device (e.g. controller).",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "Device type (e.g. joystick).",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "role",
+                "type",
+                "id"
+            ]
+        },
+        "EnvType": {
+            "type": "string",
+            "enum": [
+                "real_world",
+                "simulation"
+            ]
+        },
+        "Environment": {
+            "type": "object",
+            "properties": {
+                "location": {
+                    "description": "Optional location detail within the site (e.g. room_A).",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "site": {
+                    "description": "Site or facility of the environment (e.g. TRC).",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "Environment type (e.g. real_world or simulation).",
+                    "$ref": "#/$defs/EnvType"
+                }
+            },
+            "required": [
+                "type",
+                "site"
+            ]
+        },
+        "Episode": {
+            "type": "object",
+            "properties": {
+                "end_time": {
+                    "description": "UNIX timestamp (seconds since epoch) when this episode ended.",
+                    "type": "number",
+                    "format": "double",
+                    "minimum": 0
+                },
+                "label": {
+                    "description": "Human-readable label describing the episode task.",
+                    "type": "string"
+                },
+                "start_time": {
+                    "description": "UNIX timestamp (seconds since epoch) when this episode began.",
+                    "type": "number",
+                    "format": "double",
+                    "minimum": 0
+                },
+                "success": {
+                    "description": "True if the full episode succeeded.",
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "start_time",
+                "end_time",
+                "success",
+                "label"
+            ]
+        },
+        "File": {
+            "type": "object",
+            "properties": {
+                "checksum": {
+                    "description": "Optional checksum to ensure file integrity.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "name": {
+                    "description": "Filename (e.g. data.bag).",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "File type (e.g. rosbag or mcap).",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "type",
+                "name"
+            ]
+        },
+        "GitSource": {
+            "type": "object",
+            "properties": {
+                "branch": {
+                    "description": "Branch name.",
+                    "type": "string"
+                },
+                "hash": {
+                    "description": "Commit hash.",
+                    "type": "string"
+                },
+                "tag": {
+                    "description": "Git tag.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "uri": {
+                    "description": "Git repository URI.",
+                    "type": "string",
+                    "format": "uri"
+                }
+            },
+            "required": [
+                "uri",
+                "hash",
+                "branch"
+            ]
+        },
+        "Program": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "description": "Program name (e.g. hsr_leader_teleop).",
+                    "type": "string"
+                },
+                "role": {
+                    "description": "Program role (e.g. teleoperation or data_collection).",
+                    "type": "string"
+                },
+                "source": {
+                    "$ref": "#/$defs/Source"
+                }
+            },
+            "required": [
+                "role",
+                "name",
+                "source"
+            ]
+        },
+        "Robot": {
+            "type": "object",
+            "properties": {
+                "checksum": {
+                    "description": "Optional checksum used to verify the robot image or config.",
+                    "type": [
+                        "string",
+                        "null"
+                    ]
+                },
+                "id": {
+                    "description": "Robot identifier (e.g. hsr001).",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "Type of robot (e.g. hsr).",
+                    "type": "string"
+                },
+                "uri": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "format": "uri"
+                }
+            },
+            "required": [
+                "type",
+                "id"
+            ]
+        },
+        "Runner": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "description": "Name of the runner (e.g. TarouTanaka).",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "Runner type (e.g. operator or model).",
+                    "$ref": "#/$defs/RunnerType"
+                }
+            },
+            "required": [
+                "type",
+                "name"
+            ]
+        },
+        "RunnerType": {
+            "type": "string",
+            "enum": [
+                "operator",
+                "model"
+            ]
+        },
+        "Segment": {
+            "type": "object",
+            "properties": {
+                "end_time": {
+                    "description": "UNIX timestamp (seconds since epoch) when this segment ended.",
+                    "type": "number",
+                    "format": "double",
+                    "minimum": 0
+                },
+                "label_idx": {
+                    "description": "Index within `labels` associated with this segment.",
+                    "type": "integer",
+                    "format": "uint",
+                    "minimum": 0
+                },
+                "start_time": {
+                    "description": "UNIX timestamp (seconds since epoch) when this segment began.",
+                    "type": "number",
+                    "format": "double",
+                    "minimum": 0
+                },
+                "success": {
+                    "description": "True if the segment objective succeeded.",
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "start_time",
+                "end_time",
+                "label_idx",
+                "success"
+            ]
+        },
+        "Source": {
+            "type": "object",
+            "properties": {
+                "git": {
+                    "description": "Git repository snapshot for this artifact.",
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/GitSource"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}
