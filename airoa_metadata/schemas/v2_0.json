@@ -265,7 +265,7 @@
                     "description": "Type of robot (e.g. hsr).",
                     "type": "string"
                 },
-                "uri": {
+                "config_uri": {
                     "type": [
                         "string",
                         "null"
