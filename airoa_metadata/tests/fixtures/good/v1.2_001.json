@@ -47,7 +47,7 @@
         }
       },
       {
-        "role": "data_capture",
+        "role": "data_collection",
         "name": "rosbag_manager",
         "source": {
           "git": {
