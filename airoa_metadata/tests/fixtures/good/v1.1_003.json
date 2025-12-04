@@ -1,10 +1,22 @@
 {
   "version": "1.1",
   "files": [
-    {"type": "rosbag", "name": "tomato_bag"},
-    {"type": "rosbag2", "name": "tomato_bag2"},
-    {"type": "video", "name": "video.mp4"},
-    {"type": "json", "name": "statistics.json"}
+    {
+      "type": "rosbag",
+      "name": "tomato_bag"
+    },
+    {
+      "type": "rosbag2",
+      "name": "tomato_bag2"
+    },
+    {
+      "type": "video",
+      "name": "video.mp4"
+    },
+    {
+      "type": "json",
+      "name": "statistics.json"
+    }
   ],
   "context": {
     "entities": [
@@ -14,7 +26,7 @@
       },
       {
         "role": "robot",
-        "id":   "hsrc050"
+        "id": "hsrc050"
       },
       {
         "role": "operator",
@@ -31,7 +43,7 @@
       {
         "role": "task",
         "id": "task-1234",
-        "template": { 
+        "template": {
           "name": "default_template",
           "description": "Default task template"
         }
@@ -50,7 +62,7 @@
         }
       },
       {
-        "role": "data_capture",
+        "role": "data_collection",
         "name": "sensor_logger",
         "source": {
           "git": {
@@ -70,17 +82,23 @@
     "instructions": [
       {
         "idx": 0,
-        "text": ["Pick up the tomato."],
+        "text": [
+          "Pick up the tomato."
+        ],
         "target_time": 10
       },
       {
         "idx": 1,
-        "text": ["Place tomato in basket."],
+        "text": [
+          "Place tomato in basket."
+        ],
         "target_time": 10
       },
       {
         "idx": 2,
-        "text": ["Verify placement."],
+        "text": [
+          "Verify placement."
+        ],
         "target_time": 10
       }
     ],

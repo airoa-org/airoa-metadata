@@ -17,7 +17,7 @@
         "name": "tmc"
       },
       {
-        "role": "organization", 
+        "role": "organization",
         "name": "tmc"
       }
     ],
@@ -34,7 +34,7 @@
         }
       },
       {
-        "role": "data_capture", 
+        "role": "data_collection",
         "name": "rosbag_manager",
         "source": {
           "git": {
@@ -51,11 +51,15 @@
     "instructions": [
       {
         "idx": 0,
-        "text": ["Grasp the eggplant."]
+        "text": [
+          "Grasp the eggplant."
+        ]
       },
       {
         "idx": 1,
-        "text": ["Place it on the table."]
+        "text": [
+          "Place it on the table."
+        ]
       }
     ],
     "segments": [
