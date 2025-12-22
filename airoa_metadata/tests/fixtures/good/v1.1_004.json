@@ -42,8 +42,8 @@
         }
       },
       {
-        "role": "data_capture",
-        "name": "data_capture_component",
+        "role": "data_collection",
+        "name": "data_collection_component",
         "source": {
           "git": {
             "hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -59,11 +59,15 @@
     "instructions": [
       {
         "idx": 0,
-        "text": ["action 1"]
+        "text": [
+          "action 1"
+        ]
       },
       {
         "idx": 1,
-        "text": ["action 1"]
+        "text": [
+          "action 1"
+        ]
       }
     ],
     "segments": [

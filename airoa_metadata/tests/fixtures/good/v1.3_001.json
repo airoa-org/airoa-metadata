@@ -31,9 +31,9 @@
       },
       {
         "role": "task-template",
-	"id": "template-id",
-	"name": "Small can pickup",
-	"description": "Take one small can from the shelf and place it into the container."
+        "id": "template-id",
+        "name": "Small can pickup",
+        "description": "Take one small can from the shelf and place it into the container."
       }
     ],
     "components": [
@@ -49,7 +49,7 @@
         }
       },
       {
-        "role": "data_capture",
+        "role": "data_collection",
         "name": "rosbag_manager",
         "source": {
           "git": {
