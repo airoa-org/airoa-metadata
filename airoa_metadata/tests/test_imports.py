@@ -21,6 +21,7 @@ class TestMainPackageImports:
             MetadataV1_1,
             MetadataV1_2,
             MetadataV1_3,
+            MetadataV2_0,
             __version__,
         )
 
@@ -32,6 +33,7 @@ class TestMainPackageImports:
         assert MetadataV1_1 is not None
         assert MetadataV1_2 is not None
         assert MetadataV1_3 is not None
+        assert MetadataV2_0 is not None
         assert MetadataLatest is not None
         assert Metadata is not None
         assert __version__ is not None
@@ -40,7 +42,7 @@ class TestMainPackageImports:
         """Test package metadata is correctly set."""
         from airoa_metadata import __author__, __version__
 
-        assert __version__ == "1.3.0"
+        assert __version__ == "2.0.0"
         assert __author__ == "Petr Khrapchenkov"
 
 
@@ -81,6 +83,7 @@ class TestVersionImports:
             MetadataV1_1,
             MetadataV1_2,
             MetadataV1_3,
+            MetadataV2_0,
         )
 
         assert MetadataV0_0 is not None
@@ -88,15 +91,16 @@ class TestVersionImports:
         assert MetadataV1_1 is not None
         assert MetadataV1_2 is not None
         assert MetadataV1_3 is not None
+        assert MetadataV2_0 is not None
         assert VERSIONS is not None
-        assert LATEST_VERSION == "1.3"
-        assert MetadataLatest is MetadataV1_3
+        assert LATEST_VERSION == "2.0"
+        assert MetadataLatest is MetadataV2_0
 
     def test_versions_registry(self):
         """Test the versions registry contains all expected versions."""
         from airoa_metadata.versions import VERSIONS
 
-        expected_versions = ["0.0", "1.0", "1.1", "1.2", "1.3"]
+        expected_versions = ["0.0", "1.0", "1.1", "1.2", "1.3", "2.0"]
         assert set(VERSIONS.keys()) == set(expected_versions)
 
         # Verify each version maps to the correct class
@@ -106,6 +110,7 @@ class TestVersionImports:
             MetadataV1_1,
             MetadataV1_2,
             MetadataV1_3,
+            MetadataV2_0,
         )
 
         assert VERSIONS["0.0"] is MetadataV0_0
@@ -113,6 +118,7 @@ class TestVersionImports:
         assert VERSIONS["1.1"] is MetadataV1_1
         assert VERSIONS["1.2"] is MetadataV1_2
         assert VERSIONS["1.3"] is MetadataV1_3
+        assert VERSIONS["2.0"] is MetadataV2_0
 
     @pytest.mark.parametrize(
         "version,expected_class",
@@ -122,6 +128,7 @@ class TestVersionImports:
             ("1.1", "MetadataV1_1"),
             ("1.2", "MetadataV1_2"),
             ("1.3", "MetadataV1_3"),
+            ("2.0", "MetadataV2_0"),
         ],
     )
     def test_individual_version_imports(self, version, expected_class):
@@ -138,12 +145,14 @@ class TestVersionImports:
         from airoa_metadata.versions.v1_1 import MetadataV1_1
         from airoa_metadata.versions.v1_2 import MetadataV1_2
         from airoa_metadata.versions.v1_3 import MetadataV1_3
+        from airoa_metadata.versions.v2_0 import MetadataV2_0
 
         assert MetadataV0_0 is not None
         assert MetadataV1_0 is not None
         assert MetadataV1_1 is not None
         assert MetadataV1_2 is not None
         assert MetadataV1_3 is not None
+        assert MetadataV2_0 is not None
 
 
 class TestSchemaImports:
@@ -165,7 +174,7 @@ class TestSchemaImports:
         """Test that all expected schemas are available."""
         from airoa_metadata.schemas import AVAILABLE_SCHEMAS
 
-        expected_schemas = ["0.0", "1.0", "1.1", "1.2", "1.3"]
+        expected_schemas = ["0.0", "1.0", "1.1", "1.2", "1.3", "2.0"]
         assert set(AVAILABLE_SCHEMAS) == set(expected_schemas)
 
 
@@ -175,16 +184,16 @@ class TestConvenienceAliases:
     def test_metadata_latest_alias(self):
         """Test MetadataLatest points to the latest version."""
         from airoa_metadata import MetadataLatest
-        from airoa_metadata.versions import MetadataV1_3
+        from airoa_metadata.versions import MetadataV2_0
 
-        assert MetadataLatest is MetadataV1_3
+        assert MetadataLatest is MetadataV2_0
 
     def test_metadata_alias(self):
         """Test Metadata points to the latest version."""
         from airoa_metadata import Metadata
-        from airoa_metadata.versions import MetadataV1_3
+        from airoa_metadata.versions import MetadataV2_0
 
-        assert Metadata is MetadataV1_3
+        assert Metadata is MetadataV2_0
 
     def test_aliases_consistency(self):
         """Test that all aliases point to the same class."""
@@ -201,7 +210,7 @@ class TestImportErrors:
     def test_nonexistent_version_import_fails(self):
         """Test that importing a non-existent version fails."""
         with pytest.raises(ImportError):
-            from airoa_metadata.versions.v2_0 import MetadataV2_0  # noqa: F401
+            from airoa_metadata.versions.v9_9 import MetadataV9_9  # noqa: F401
 
     def test_nonexistent_module_import_fails(self):
         """Test that importing from non-existent module fails."""

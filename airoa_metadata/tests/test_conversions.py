@@ -13,6 +13,7 @@ from airoa_metadata.versions import (
     MetadataV1_1,
     MetadataV1_2,
     MetadataV1_3,
+    MetadataV2_0,
 )
 
 
@@ -126,6 +127,126 @@ class TestV1_2_to_V1_3_Conversion:
             assert v1_3_instr.text == v1_2_instr.text
 
 
+class TestV1_3_to_V2_0_Conversion:
+    """Test conversion from v1.3 to v2.0."""
+
+    def test_convert_v1_3_to_v2_0_with_real_data(self, v1_3_test_data: Dict[str, Any]):
+        """Test converting real v1.3 data to v2.0."""
+        v1_3_metadata = MetadataV1_3.from_dict(v1_3_test_data)
+        v2_0_metadata = MetadataV2_0.convert(v1_3_metadata)
+
+        assert v2_0_metadata.version == "2.0"
+        assert v2_0_metadata.uuid == v1_3_metadata.uuid
+        assert len(v2_0_metadata.files) == len(v1_3_metadata.files)
+
+    def test_robot_entity_mapping(self, sample_v1_3_data: Dict[str, Any]):
+        """Test that robot entity maps to robot object."""
+        v1_3_metadata = MetadataV1_3.from_dict(sample_v1_3_data)
+        v2_0_metadata = MetadataV2_0.convert(v1_3_metadata)
+
+        robot_entity = next(
+            (e for e in v1_3_metadata.context.entities if e.role == "robot"), None
+        )
+        assert robot_entity is not None
+        assert v2_0_metadata.robot.id == robot_entity.id
+
+    def test_operator_entity_mapping(self, sample_v1_3_data: Dict[str, Any]):
+        """Test that operator entity maps to runner object."""
+        v1_3_metadata = MetadataV1_3.from_dict(sample_v1_3_data)
+        v2_0_metadata = MetadataV2_0.convert(v1_3_metadata)
+
+        operator_entity = next(
+            (e for e in v1_3_metadata.context.entities if e.role == "operator"), None
+        )
+        assert operator_entity is not None
+        assert v2_0_metadata.runner.name == operator_entity.id
+        assert v2_0_metadata.runner.type == "operator"
+
+    def test_location_entity_mapping(self, sample_v1_3_data: Dict[str, Any]):
+        """Test that location entity maps to environment object."""
+        # Add location entity to sample data
+        sample_v1_3_data["context"]["entities"].append(
+            {"role": "location", "name": "test-room"}
+        )
+        v1_3_metadata = MetadataV1_3.from_dict(sample_v1_3_data)
+        v2_0_metadata = MetadataV2_0.convert(v1_3_metadata)
+
+        assert v2_0_metadata.environment.location == "test-room"
+        assert v2_0_metadata.environment.type == "real_world"
+
+    def test_components_to_programs(self, sample_v1_3_data: Dict[str, Any]):
+        """Test that components are converted to programs."""
+        v1_3_metadata = MetadataV1_3.from_dict(sample_v1_3_data)
+        v2_0_metadata = MetadataV2_0.convert(v1_3_metadata)
+
+        assert len(v2_0_metadata.programs) == len(v1_3_metadata.context.components)
+
+        if v1_3_metadata.context.components and v2_0_metadata.programs:
+            comp = v1_3_metadata.context.components[0]
+            prog = v2_0_metadata.programs[0]
+            assert prog.role == comp.role
+            assert prog.name == comp.name
+            assert prog.source.git.uri == comp.source.git.uri
+
+    def test_instructions_to_labels(self, sample_v1_3_data: Dict[str, Any]):
+        """Test that instructions are converted to labels."""
+        v1_3_metadata = MetadataV1_3.from_dict(sample_v1_3_data)
+        v2_0_metadata = MetadataV2_0.convert(v1_3_metadata)
+
+        assert len(v2_0_metadata.labels) == len(v1_3_metadata.run.instructions)
+        if v1_3_metadata.run.instructions:
+            assert v2_0_metadata.labels[0] == v1_3_metadata.run.instructions[0].text[0]
+
+    def test_segments_converted(self, sample_v1_3_data: Dict[str, Any]):
+        """Test that segments are mapped with label_idx replacing instruction_idx."""
+        v1_3_metadata = MetadataV1_3.from_dict(sample_v1_3_data)
+        v2_0_metadata = MetadataV2_0.convert(v1_3_metadata)
+
+        assert len(v2_0_metadata.segments) == len(v1_3_metadata.run.segments)
+
+        if v1_3_metadata.run.segments and v2_0_metadata.segments:
+            v1_3_seg = v1_3_metadata.run.segments[0]
+            v2_0_seg = v2_0_metadata.segments[0]
+            assert v2_0_seg.start_time == v1_3_seg.start_time
+            assert v2_0_seg.end_time == v1_3_seg.end_time
+            assert v2_0_seg.label_idx == v1_3_seg.instruction_idx
+            assert v2_0_seg.success == v1_3_seg.success
+
+    def test_episode_derived(self, sample_v1_3_data: Dict[str, Any]):
+        """Test that episode is derived from segments and run data."""
+        v1_3_metadata = MetadataV1_3.from_dict(sample_v1_3_data)
+        v2_0_metadata = MetadataV2_0.convert(v1_3_metadata)
+
+        if v1_3_metadata.run.segments:
+            assert (
+                v2_0_metadata.episode.start_time
+                == v1_3_metadata.run.segments[0].start_time
+            )
+            assert (
+                v2_0_metadata.episode.end_time
+                == v1_3_metadata.run.segments[-1].end_time
+            )
+            assert v2_0_metadata.episode.success == all(
+                s.success for s in v1_3_metadata.run.segments
+            )
+
+    def test_uuid_preserved(self, sample_v1_3_data: Dict[str, Any]):
+        """Test that UUID is preserved during conversion."""
+        v1_3_metadata = MetadataV1_3.from_dict(sample_v1_3_data)
+        v2_0_metadata = MetadataV2_0.convert(v1_3_metadata)
+        assert v2_0_metadata.uuid == v1_3_metadata.uuid
+
+    def test_files_preserved(self, sample_v1_3_data: Dict[str, Any]):
+        """Test that files are preserved during conversion."""
+        v1_3_metadata = MetadataV1_3.from_dict(sample_v1_3_data)
+        v2_0_metadata = MetadataV2_0.convert(v1_3_metadata)
+
+        assert len(v2_0_metadata.files) == len(v1_3_metadata.files)
+        for v1_3_file, v2_0_file in zip(v1_3_metadata.files, v2_0_metadata.files):
+            assert v2_0_file.type == v1_3_file.type
+            assert v2_0_file.name == v1_3_file.name
+
+
 class TestConversionChain:
     """Test conversion chains through multiple versions."""
 
@@ -143,8 +264,16 @@ class TestConversionChain:
 
         assert converted is v1_3_metadata
 
+    def test_v2_0_same_instance_returns_self(self, sample_v2_0_data: Dict[str, Any]):
+        """Test that converting v2.0 to v2.0 returns the same instance."""
+        v2_0_metadata = MetadataV2_0.from_dict(sample_v2_0_data)
+        converted = MetadataV2_0.convert(v2_0_metadata)
+
+        assert converted is v2_0_metadata
+
     def test_preceding_chain(self):
         """Test that preceding() method returns correct chain."""
+        assert MetadataV2_0.preceding() is MetadataV1_3
         assert MetadataV1_3.preceding() is MetadataV1_2
         assert MetadataV1_2.preceding() is MetadataV1_1
         assert MetadataV1_1.preceding() is MetadataV1_0
@@ -157,12 +286,17 @@ class TestConversionChain:
             ("0.0", MetadataV1_1, "1.1"),
             ("0.0", MetadataV1_2, "1.2"),
             ("0.0", MetadataV1_3, "1.3"),
+            ("0.0", MetadataV2_0, "2.0"),
             ("1.0", MetadataV1_1, "1.1"),
             ("1.0", MetadataV1_2, "1.2"),
             ("1.0", MetadataV1_3, "1.3"),
+            ("1.0", MetadataV2_0, "2.0"),
             ("1.1", MetadataV1_2, "1.2"),
             ("1.1", MetadataV1_3, "1.3"),
+            ("1.1", MetadataV2_0, "2.0"),
             ("1.2", MetadataV1_3, "1.3"),
+            ("1.2", MetadataV2_0, "2.0"),
+            ("1.3", MetadataV2_0, "2.0"),
         ],
     )
     def test_all_version_conversions(
@@ -185,6 +319,8 @@ class TestConversionChain:
             source_metadata = MetadataV1_2.from_dict(source_data)
         elif source_version == "1.3":
             source_metadata = MetadataV1_3.from_dict(source_data)
+        elif source_version == "2.0":
+            source_metadata = MetadataV2_0.from_dict(source_data)
 
         # Convert to target version
         converted_metadata = target_class.convert(source_metadata)
@@ -321,8 +457,6 @@ class TestConversionMetadata:
 
         assert len(v1_3_metadata.files) == len(v1_2_metadata.files)
 
-        for v1_2_file, v1_3_file in zip(
-            v1_2_metadata.files, v1_3_metadata.files
-        ):
+        for v1_2_file, v1_3_file in zip(v1_2_metadata.files, v1_3_metadata.files):
             assert v1_3_file.type == v1_2_file.type
             assert v1_3_file.name == v1_2_file.name

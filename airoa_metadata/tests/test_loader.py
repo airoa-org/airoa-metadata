@@ -16,6 +16,7 @@ from airoa_metadata.versions import (
     MetadataV1_1,
     MetadataV1_2,
     MetadataV1_3,
+    MetadataV2_0,
 )
 
 
@@ -24,7 +25,7 @@ class TestMetadataLoaderVersionMapping:
 
     def test_version_map_contains_all_versions(self):
         """Test that version_map contains all expected versions."""
-        expected_versions = {"0.0", "1.0", "1.1", "1.2", "1.3"}
+        expected_versions = {"0.0", "1.0", "1.1", "1.2", "1.3", "2.0"}
         actual_versions = set(MetadataLoader.get_version_map().keys())
 
         assert expected_versions == actual_versions
@@ -37,6 +38,7 @@ class TestMetadataLoaderVersionMapping:
             "1.1": MetadataV1_1,
             "1.2": MetadataV1_2,
             "1.3": MetadataV1_3,
+            "2.0": MetadataV2_0,
         }
 
         version_map = MetadataLoader.get_version_map()
@@ -47,6 +49,23 @@ class TestMetadataLoaderVersionMapping:
 
 class TestMetadataLoaderFromDict:
     """Test MetadataLoader.load_from_dict functionality."""
+
+    def test_load_from_dict_v2_0(self, v2_0_test_data: Dict[str, Any]):
+        """Test loading v2.0 data from dict."""
+        metadata = MetadataLoader.load_from_dict(v2_0_test_data)
+
+        assert isinstance(metadata, MetadataV2_0)
+        assert metadata.version == "2.0"
+        assert metadata.uuid == v2_0_test_data["uuid"]
+
+    def test_load_from_dict_schema_version_field(
+        self, sample_v2_0_data: Dict[str, Any]
+    ):
+        """Test that loader detects schema_version field for v2.0."""
+        with patch.object(MetadataLoader, "_validate_with_schema"):
+            metadata = MetadataLoader.load_from_dict(sample_v2_0_data)
+            assert isinstance(metadata, MetadataV2_0)
+            assert metadata.version == "2.0"
 
     def test_load_from_dict_v1_3(self, v1_3_test_data: Dict[str, Any]):
         """Test loading v1.3 data from dict."""
@@ -233,6 +252,20 @@ class TestMetadataLoaderIntegration:
             assert isinstance(v1_3_metadata, MetadataV1_3)
             assert v1_3_metadata.version == "1.3"
             assert v1_3_metadata.uuid == v1_2_metadata.uuid
+
+    def test_load_and_convert_to_v2_0(self, v1_3_test_data: Dict[str, Any]):
+        """Test complete workflow: load v1.3 and convert to v2.0."""
+        with patch.object(MetadataLoader, "_validate_with_schema"):
+            v1_3_metadata = MetadataLoader.load_from_dict(v1_3_test_data)
+
+            assert isinstance(v1_3_metadata, MetadataV1_3)
+            assert v1_3_metadata.version == "1.3"
+
+            v2_0_metadata = MetadataV2_0.convert(v1_3_metadata)
+
+            assert isinstance(v2_0_metadata, MetadataV2_0)
+            assert v2_0_metadata.version == "2.0"
+            assert v2_0_metadata.uuid == v1_3_metadata.uuid
 
     def test_round_trip_serialization(self, v1_3_test_data: Dict[str, Any]):
         """Test loading data, serializing it, and loading again."""
