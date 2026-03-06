@@ -13,8 +13,7 @@
             "type": "array",
             "items": {
                 "$ref": "#/$defs/Device"
-            },
-            "minItems": 1
+            }
         },
         "environment": {
             "description": "Environment context (site, optional location, and type such as real_world or simulation).",
@@ -265,7 +264,7 @@
                     "description": "Type of robot (e.g. hsr).",
                     "type": "string"
                 },
-                "config_uri": {
+                "uri": {
                     "type": [
                         "string",
                         "null"
