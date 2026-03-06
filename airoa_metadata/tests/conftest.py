@@ -122,7 +122,7 @@ def sample_v1_3_data() -> Dict[str, Any]:
 def sample_v2_0_data() -> Dict[str, Any]:
     """Create minimal valid v2.0 data for testing."""
     return {
-        "$schema": "https://github.com/airoa-org/airoa-metadata/blob/feature/development/airoa_metadata/schemas/v2_0.json",
+        "$schema": "https://raw.githubusercontent.com/airoa-org/airoa-metadata/main/airoa_metadata/schemas/v2_0.json",
         "schema_version": "2.0",
         "uuid": "123e4567-e89b-12d3-a456-426614174000",
         "robot": {"type": "hsrd", "id": "robot-001"},

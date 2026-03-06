@@ -159,8 +159,22 @@ class TestV1_3_to_V2_0_Conversion:
             (e for e in v1_3_metadata.context.entities if e.role == "operator"), None
         )
         assert operator_entity is not None
-        assert v2_0_metadata.runner.name == operator_entity.id
+        assert v2_0_metadata.runner.name == ""
         assert v2_0_metadata.runner.type == "operator"
+
+    def test_operator_name_mapping(self, sample_v1_3_data: Dict[str, Any]):
+        """Test that operator.name is used for runner.name when present."""
+        sample_v1_3_data["context"]["entities"] = [
+            e for e in sample_v1_3_data["context"]["entities"] if e["role"] != "operator"
+        ]
+        sample_v1_3_data["context"]["entities"].append(
+            {"role": "operator", "id": "op-001", "name": "Operator Name"}
+        )
+
+        v1_3_metadata = MetadataV1_3.from_dict(sample_v1_3_data)
+        v2_0_metadata = MetadataV2_0.convert(v1_3_metadata)
+
+        assert v2_0_metadata.runner.name == "Operator Name"
 
     def test_location_entity_mapping(self, sample_v1_3_data: Dict[str, Any]):
         """Test that location entity maps to environment object."""
@@ -171,8 +185,22 @@ class TestV1_3_to_V2_0_Conversion:
         v1_3_metadata = MetadataV1_3.from_dict(sample_v1_3_data)
         v2_0_metadata = MetadataV2_0.convert(v1_3_metadata)
 
-        assert v2_0_metadata.environment.location == "test-room"
+        assert v2_0_metadata.environment.site == "test-room"
+        assert v2_0_metadata.environment.location == ""
         assert v2_0_metadata.environment.type == "real_world"
+
+    def test_device_entities_mapping(self, sample_v1_3_data: Dict[str, Any]):
+        """Test that device-like entities are converted to devices."""
+        sample_v1_3_data["context"]["entities"].append(
+            {"role": "controller", "id": "joy-001", "name": "joystick"}
+        )
+        v1_3_metadata = MetadataV1_3.from_dict(sample_v1_3_data)
+        v2_0_metadata = MetadataV2_0.convert(v1_3_metadata)
+
+        assert len(v2_0_metadata.devices) == 1
+        assert v2_0_metadata.devices[0].role == "controller"
+        assert v2_0_metadata.devices[0].type == "joystick"
+        assert v2_0_metadata.devices[0].id == "joy-001"
 
     def test_components_to_programs(self, sample_v1_3_data: Dict[str, Any]):
         """Test that components are converted to programs."""
@@ -229,6 +257,59 @@ class TestV1_3_to_V2_0_Conversion:
             assert v2_0_metadata.episode.success == all(
                 s.success for s in v1_3_metadata.run.segments
             )
+
+    def test_composite_segments_for_episode(self, v1_3_test_data: Dict[str, Any]):
+        """Test that composite segments are excluded and drive episode label."""
+        v1_3_metadata = MetadataV1_3.from_dict(v1_3_test_data)
+        v2_0_metadata = MetadataV2_0.convert(v1_3_metadata)
+
+        non_composite_segments = [
+            s for s in v1_3_metadata.run.segments if not bool(s.is_composite)
+        ]
+        composite_segment = next(
+            (s for s in v1_3_metadata.run.segments if bool(s.is_composite)), None
+        )
+
+        assert len(v2_0_metadata.segments) == len(non_composite_segments)
+        assert len(v2_0_metadata.labels) == len(v1_3_metadata.run.instructions)
+        assert v2_0_metadata.labels == [
+            instr.text[0] for instr in v1_3_metadata.run.instructions
+        ]
+        instruction_to_label_idx = {
+            instr.idx: idx for idx, instr in enumerate(v1_3_metadata.run.instructions)
+        }
+        assert [seg.label_idx for seg in v2_0_metadata.segments] == [
+            instruction_to_label_idx[s.instruction_idx] for s in non_composite_segments
+        ]
+
+        assert composite_segment is not None
+        expected_instruction = next(
+            i
+            for i in v1_3_metadata.run.instructions
+            if i.idx == composite_segment.instruction_idx
+        )
+        assert v2_0_metadata.episode.label == expected_instruction.text[0]
+
+    def test_composite_segment_requires_valid_instruction(
+        self, sample_v1_3_data: Dict[str, Any]
+    ):
+        """Test that composite segment label does not fall back to episode_label."""
+        sample_v1_3_data["run"]["instructions"] = [{"idx": 0, "text": ["Task"]}]
+        sample_v1_3_data["run"]["segments"] = [
+            {
+                "start_time": 1000.0,
+                "end_time": 1010.0,
+                "instruction_idx": 999,
+                "success": True,
+                "controlled_by": "operator",
+                "is_composite": True,
+            }
+        ]
+        sample_v1_3_data["run"]["episode_label"] = "legacy episode label"
+
+        v1_3_metadata = MetadataV1_3.from_dict(sample_v1_3_data)
+        with pytest.raises(ValueError, match="composite segment references instruction_idx"):
+            MetadataV2_0.convert(v1_3_metadata)
 
     def test_uuid_preserved(self, sample_v1_3_data: Dict[str, Any]):
         """Test that UUID is preserved during conversion."""

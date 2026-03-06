@@ -28,7 +28,9 @@ from .v1_3 import MetadataV1_3
 
 logger = logging.getLogger(__name__)
 
-SCHEMA_URI = "https://github.com/airoa-org/airoa-metadata/blob/feature/development/airoa_metadata/schemas/v2_0.json"
+SCHEMA_URI = (
+    "https://raw.githubusercontent.com/airoa-org/airoa-metadata/main/airoa_metadata/schemas/v2_0.json"
+)
 
 
 @dataclass
@@ -55,7 +57,7 @@ class SourceV2_0:
 class RobotV2_0:
     type: str
     id: str
-    config_uri: Optional[str] = None
+    uri: Optional[str] = None
     checksum: Optional[str] = None
 
 
@@ -147,7 +149,7 @@ class MetadataV2_0(MetadataBase):
         robot = RobotV2_0(
             type=robot_data.get("type", ""),
             id=robot_data.get("id", ""),
-            config_uri=robot_data.get("config_uri"),
+            uri=robot_data.get("uri"),
             checksum=robot_data.get("checksum"),
         )
 
@@ -232,8 +234,10 @@ class MetadataV2_0(MetadataBase):
             (e for e in metadata.context.entities if e.role == "robot"), None
         )
         robot = {
-            "type": "",
-            "id": robot_entity.id if robot_entity else "",
+            "type": "HSR",
+            "id": robot_entity.id if robot_entity and robot_entity.id else "",
+            "uri": None,
+            "checksum": None,
         }
 
         # Map environment from entity with role="location"
@@ -242,8 +246,10 @@ class MetadataV2_0(MetadataBase):
         )
         environment = {
             "type": "real_world",
-            "site": "",
-            "location": location_entity.name if location_entity else None,
+            "site": (
+                location_entity.name if location_entity and location_entity.name else ""
+            ),
+            "location": "",
         }
 
         # Map runner from entity with role="operator"
@@ -255,8 +261,8 @@ class MetadataV2_0(MetadataBase):
         )
         runner = {
             "type": "operator",
-            "organization": org_entity.name if org_entity else "",
-            "name": operator_entity.id if operator_entity else "",
+            "organization": org_entity.name if org_entity and org_entity.name else "",
+            "name": operator_entity.name if operator_entity and operator_entity.name else "",
         }
 
         # Map components to programs
@@ -277,42 +283,89 @@ class MetadataV2_0(MetadataBase):
                 }
             )
 
-        # Map instructions to labels (take first text variant of each instruction)
-        labels = []
-        for instr in metadata.run.instructions:
-            if instr.text:
-                labels.append(instr.text[0])
-
-        # Map segments (instruction_idx -> label_idx, drop controlled_by/score/is_composite)
-        segments = [
-            {
-                "start_time": seg.start_time,
-                "end_time": seg.end_time,
-                "label_idx": seg.instruction_idx,
-                "success": seg.success,
-            }
+        # Composite segments are episode-level summaries and excluded from segments.
+        composite_segments = [
+            seg for seg in metadata.run.segments if bool(getattr(seg, "is_composite", False))
+        ]
+        non_composite_segments = [
+            seg
             for seg in metadata.run.segments
+            if not bool(getattr(seg, "is_composite", False))
         ]
 
-        # Derive episode from segments and run data
-        if metadata.run.segments:
-            episode_start = metadata.run.segments[0].start_time
-            episode_end = metadata.run.segments[-1].end_time
-            episode_success = all(seg.success for seg in metadata.run.segments)
+        instruction_map = {}
+        labels = []
+        instruction_to_label_idx = {}
+        for label_idx, instruction in enumerate(metadata.run.instructions):
+            if instruction.idx in instruction_map:
+                raise ValueError(
+                    f"duplicate instruction idx {instruction.idx} in v1.3 instructions"
+                )
+            if not instruction.text:
+                raise ValueError(f"instruction {instruction.idx} has empty text array")
+            instruction_map[instruction.idx] = instruction
+            instruction_to_label_idx[instruction.idx] = label_idx
+            labels.append(instruction.text[0])
+
+        segments = []
+        for segment_idx, seg in enumerate(non_composite_segments):
+            label_idx = instruction_to_label_idx.get(seg.instruction_idx)
+            if label_idx is None:
+                raise ValueError(
+                    f"segment {segment_idx} references instruction_idx {seg.instruction_idx} which does not exist"
+                )
+            segments.append(
+                {
+                    "start_time": seg.start_time,
+                    "end_time": seg.end_time,
+                    "label_idx": label_idx,
+                    "success": seg.success,
+                }
+            )
+
+        if composite_segments:
+            composite = composite_segments[0]
+            composite_instruction = instruction_map.get(composite.instruction_idx)
+            if composite_instruction is None:
+                raise ValueError(
+                    f"composite segment references instruction_idx {composite.instruction_idx} which does not exist"
+                )
+            if not composite_instruction.text:
+                raise ValueError(
+                    f"instruction {composite.instruction_idx} has empty text array"
+                )
+            episode_label = composite_instruction.text[0]
+            episode_start = composite.start_time
+            episode_end = composite.end_time
+            episode_success = composite.success
+        elif non_composite_segments:
+            episode_start = non_composite_segments[0].start_time
+            episode_end = non_composite_segments[-1].end_time
+            episode_success = all(seg.success for seg in non_composite_segments)
+            episode_label = getattr(metadata.run, "episode_label", None) or ""
         else:
             episode_start = 0.0
             episode_end = 0.0
             episode_success = False
+            episode_label = getattr(metadata.run, "episode_label", None) or ""
 
         episode = {
             "start_time": episode_start,
             "end_time": episode_end,
             "success": episode_success,
-            "label": getattr(metadata.run, "episode_label", None) or "",
+            "label": episode_label,
         }
 
-        # Devices: no v1.3 equivalent, default to empty list
         devices = []
+        for entity in metadata.context.entities:
+            if entity.role in {"controller", "joystick", "device"}:
+                devices.append(
+                    {
+                        "role": entity.role,
+                        "type": entity.name or entity.role,
+                        "id": entity.id or "",
+                    }
+                )
 
         new_data = {
             "$schema": SCHEMA_URI,

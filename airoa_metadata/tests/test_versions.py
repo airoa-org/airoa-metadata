@@ -65,6 +65,13 @@ class TestMetadataV2_0:
         assert metadata.robot.type == "hsrd"
         assert metadata.robot.id is not None
 
+    def test_robot_uri_parsing(self, sample_v2_0_data: Dict[str, Any]):
+        """Test that `uri` key is parsed into robot.uri."""
+        sample_v2_0_data["robot"]["uri"] = "https://example.com/robot"
+        metadata = MetadataV2_0.from_dict(sample_v2_0_data)
+
+        assert metadata.robot.uri == "https://example.com/robot"
+
     def test_programs_structure(self, v2_0_test_data: Dict[str, Any]):
         """Test that programs are correctly parsed."""
         metadata = MetadataV2_0.from_dict(v2_0_test_data)
