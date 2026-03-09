@@ -25,7 +25,7 @@ def load_schema(version: str) -> Dict[str, Any]:
 
 
 # Available schema versions
-AVAILABLE_SCHEMAS = ["0.0", "1.0", "1.1", "1.2", "1.3"]
+AVAILABLE_SCHEMAS = ["0.0", "1.0", "1.1", "1.2", "1.3", "2.0"]
 
 __all__ = [
     "get_schema_path",

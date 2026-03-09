@@ -16,10 +16,10 @@ class TestSchemaUtilities:
 
     def test_available_schemas_list(self):
         """Test that AVAILABLE_SCHEMAS contains expected versions."""
-        expected_schemas = ["0.0", "1.0", "1.1", "1.2", "1.3"]
+        expected_schemas = ["0.0", "1.0", "1.1", "1.2", "1.3", "2.0"]
         assert set(AVAILABLE_SCHEMAS) == set(expected_schemas)
 
-    @pytest.mark.parametrize("version", ["0.0", "1.0", "1.1", "1.2", "1.3"])
+    @pytest.mark.parametrize("version", ["0.0", "1.0", "1.1", "1.2", "1.3", "2.0"])
     def test_get_schema_path(self, version):
         """Test getting schema path for each version."""
         path = get_schema_path(version)
@@ -28,7 +28,7 @@ class TestSchemaUtilities:
         assert path.name == f"v{version.replace('.', '_')}.json"
         assert path.exists(), f"Schema file not found: {path}"
 
-    @pytest.mark.parametrize("version", ["0.0", "1.0", "1.1", "1.2", "1.3"])
+    @pytest.mark.parametrize("version", ["0.0", "1.0", "1.1", "1.2", "1.3", "2.0"])
     def test_load_schema(self, version):
         """Test loading schema for each version."""
         schema = load_schema(version)
@@ -65,12 +65,47 @@ class TestSchemaUtilities:
             assert "type" in schema
             assert "properties" in schema
 
-            # Should be a JSON Schema draft-07
-            assert "http://json-schema.org/draft-07/schema#" in schema["$schema"]
+            # v2.0 uses draft/2020-12, others use draft-07
+            if version == "2.0":
+                assert "json-schema.org/draft/2020-12" in schema["$schema"]
+            else:
+                assert "http://json-schema.org/draft-07/schema#" in schema["$schema"]
 
 
 class TestSchemaContent:
     """Test schema content for specific versions."""
+
+    def test_v2_0_schema_structure(self):
+        """Test v2.0 schema has expected structure."""
+        schema = load_schema("2.0")
+
+        required_props = [
+            "$schema",
+            "schema_version",
+            "uuid",
+            "robot",
+            "files",
+            "environment",
+            "runner",
+            "devices",
+            "programs",
+            "episode",
+            "labels",
+            "segments",
+        ]
+        assert "required" in schema
+        assert set(schema["required"]) == set(required_props)
+
+        properties = schema["properties"]
+        assert "robot" in properties
+        assert "environment" in properties
+        assert "runner" in properties
+        assert "devices" in properties
+        assert "programs" in properties
+        assert "episode" in properties
+        assert "labels" in properties
+        assert "segments" in properties
+        assert "schema_version" in properties
 
     def test_v1_3_schema_structure(self):
         """Test v1.3 schema has expected structure."""

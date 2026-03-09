@@ -14,7 +14,101 @@ from airoa_metadata.versions import (
     MetadataV1_1,
     MetadataV1_2,
     MetadataV1_3,
+    MetadataV2_0,
 )
+
+
+class TestMetadataV2_0:
+    """Test MetadataV2_0 functionality."""
+
+    def test_from_dict_with_real_data(self, v2_0_test_data: Dict[str, Any]):
+        """Test creating MetadataV2_0 from real test data."""
+        metadata = MetadataV2_0.from_dict(v2_0_test_data)
+
+        assert metadata.uuid == v2_0_test_data["uuid"]
+        assert metadata.version == "2.0"
+        assert len(metadata.files) == len(v2_0_test_data["files"])
+        assert len(metadata.programs) == len(v2_0_test_data["programs"])
+        assert len(metadata.devices) == len(v2_0_test_data["devices"])
+        assert len(metadata.labels) == len(v2_0_test_data["labels"])
+        assert len(metadata.segments) == len(v2_0_test_data["segments"])
+
+    def test_from_dict_with_sample_data(self, sample_v2_0_data: Dict[str, Any]):
+        """Test creating MetadataV2_0 from sample data."""
+        metadata = MetadataV2_0.from_dict(sample_v2_0_data)
+
+        assert metadata.uuid == sample_v2_0_data["uuid"]
+        assert metadata.version == "2.0"
+        assert len(metadata.files) == 1
+        assert metadata.files[0].type == "rosbag"
+        assert metadata.files[0].name == "test.bag"
+
+    def test_to_json_serialization(self, v2_0_test_data: Dict[str, Any]):
+        """Test JSON serialization."""
+        metadata = MetadataV2_0.from_dict(v2_0_test_data)
+        json_str = metadata.to_json()
+
+        assert json_str is not None
+        assert isinstance(json_str, str)
+
+        parsed = json.loads(json_str)
+        assert isinstance(parsed, dict)
+        assert "schema_version" in parsed
+        assert "$schema" in parsed
+        assert "version" not in parsed
+
+    def test_robot_structure(self, v2_0_test_data: Dict[str, Any]):
+        """Test that robot is correctly parsed."""
+        metadata = MetadataV2_0.from_dict(v2_0_test_data)
+
+        assert metadata.robot is not None
+        assert metadata.robot.type == "hsrd"
+        assert metadata.robot.id is not None
+
+    def test_robot_uri_parsing(self, sample_v2_0_data: Dict[str, Any]):
+        """Test that `uri` key is parsed into robot.uri."""
+        sample_v2_0_data["robot"]["uri"] = "https://example.com/robot"
+        metadata = MetadataV2_0.from_dict(sample_v2_0_data)
+
+        assert metadata.robot.uri == "https://example.com/robot"
+
+    def test_programs_structure(self, v2_0_test_data: Dict[str, Any]):
+        """Test that programs are correctly parsed."""
+        metadata = MetadataV2_0.from_dict(v2_0_test_data)
+
+        assert len(metadata.programs) > 0
+
+        for program in metadata.programs:
+            assert program.role is not None
+            assert program.name is not None
+            assert program.source is not None
+            assert program.source.git is not None
+            assert program.source.git.uri is not None
+            assert program.source.git.hash is not None
+            assert program.source.git.branch is not None
+
+    def test_segments_structure(self, v2_0_test_data: Dict[str, Any]):
+        """Test that segments are correctly parsed with label_idx."""
+        metadata = MetadataV2_0.from_dict(v2_0_test_data)
+
+        assert len(metadata.segments) > 0
+
+        for segment in metadata.segments:
+            assert segment.start_time is not None
+            assert segment.end_time is not None
+            assert segment.label_idx is not None
+            assert segment.success is not None
+            assert not hasattr(segment, "instruction_idx")
+
+    def test_episode_structure(self, v2_0_test_data: Dict[str, Any]):
+        """Test that episode is correctly parsed."""
+        metadata = MetadataV2_0.from_dict(v2_0_test_data)
+
+        assert metadata.episode is not None
+        assert metadata.episode.start_time > 0
+        assert metadata.episode.end_time > metadata.episode.start_time
+        assert isinstance(metadata.episode.success, bool)
+        assert isinstance(metadata.episode.label, str)
 
 
 class TestMetadataV1_3:

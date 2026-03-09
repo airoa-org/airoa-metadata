@@ -8,7 +8,7 @@ Supports multiple metadata schema versions with automatic conversion between ver
 Copyright (c) Tokyo University Matsuo Iwasawa Laboratory, Petr Khrapchenkov
 """
 
-__version__ = "1.3.0"
+__version__ = "2.0.0"
 __author__ = "Petr Khrapchenkov"
 
 # Core functionality
@@ -21,9 +21,10 @@ from .versions.v1_0 import MetadataV1_0
 from .versions.v1_1 import MetadataV1_1
 from .versions.v1_2 import MetadataV1_2
 from .versions.v1_3 import MetadataV1_3
+from .versions.v2_0 import MetadataV2_0
 
 # Convenience aliases
-MetadataLatest = MetadataV1_3
+MetadataLatest = MetadataV2_0
 Metadata = MetadataLatest  # Alias for the latest stable version
 
 # Public API
@@ -37,6 +38,7 @@ __all__ = [
     "MetadataV1_1",
     "MetadataV1_2",
     "MetadataV1_3",
+    "MetadataV2_0",
     # Convenience aliases
     "MetadataLatest",
     "Metadata",

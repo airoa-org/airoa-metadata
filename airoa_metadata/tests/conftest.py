@@ -29,6 +29,14 @@ def bad_fixtures_dir(fixtures_dir: Path) -> Path:
 
 
 @pytest.fixture
+def v2_0_test_data(good_fixtures_dir: Path) -> Dict[str, Any]:
+    """Load v2.0 test data."""
+    test_file = good_fixtures_dir / "v2.0_001.json"
+    with open(test_file, "r") as f:
+        return json.load(f)
+
+
+@pytest.fixture
 def v1_3_test_data(good_fixtures_dir: Path) -> Dict[str, Any]:
     """Load v1.3 test data."""
     test_file = good_fixtures_dir / "v1.3_001.json"
@@ -111,6 +119,49 @@ def sample_v1_3_data() -> Dict[str, Any]:
 
 
 @pytest.fixture
+def sample_v2_0_data() -> Dict[str, Any]:
+    """Create minimal valid v2.0 data for testing."""
+    return {
+        "$schema": "https://raw.githubusercontent.com/airoa-org/airoa-metadata/main/airoa_metadata/schemas/v2_0.json",
+        "schema_version": "2.0",
+        "uuid": "123e4567-e89b-12d3-a456-426614174000",
+        "robot": {"type": "hsrd", "id": "robot-001"},
+        "files": [{"type": "rosbag", "name": "test.bag"}],
+        "environment": {"type": "real_world", "site": "TRC", "location": "room_A"},
+        "runner": {"type": "operator", "organization": "airoa", "name": "TestUser"},
+        "devices": [{"role": "controller", "type": "joystick", "id": "joystick001"}],
+        "programs": [
+            {
+                "role": "teleoperation",
+                "name": "test-teleop",
+                "source": {
+                    "git": {
+                        "uri": "https://github.com/test/repo.git",
+                        "hash": "abc123",
+                        "branch": "main",
+                    }
+                },
+            }
+        ],
+        "episode": {
+            "start_time": 1000.0,
+            "end_time": 1010.0,
+            "success": True,
+            "label": "",
+        },
+        "labels": ["Test instruction"],
+        "segments": [
+            {
+                "start_time": 1000.0,
+                "end_time": 1010.0,
+                "label_idx": 0,
+                "success": True,
+            }
+        ],
+    }
+
+
+@pytest.fixture
 def sample_v1_2_data() -> Dict[str, Any]:
     """Create minimal valid v1.2 data for testing."""
     return {
@@ -157,7 +208,7 @@ def sample_v1_2_data() -> Dict[str, Any]:
     }
 
 
-@pytest.fixture(params=["0.0", "1.0", "1.1", "1.2", "1.3"])
+@pytest.fixture(params=["0.0", "1.0", "1.1", "1.2", "1.3", "2.0"])
 def version_string(request) -> str:
     """Parametrized fixture for all supported version strings."""
     return request.param

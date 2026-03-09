@@ -57,10 +57,9 @@ class MetadataLoader:
         if not isinstance(data, dict):
             raise TypeError("Data must be a dictionary")
 
-        if "version" not in data:
+        version = data.get("schema_version") or data.get("version")
+        if version is None:
             raise KeyError("Version field not found in metadata")
-
-        version = data["version"]
         logger.info(f"Detected metadata version {version}")
 
         version_map = cls.get_version_map()
@@ -99,7 +98,7 @@ class MetadataLoader:
         Validate the given data dict against the JSON Schema found at the relative path.
         The path is relative to this file.
         """
-        version = data.get("version", "0.0")
+        version = data.get("schema_version") or data.get("version", "0.0")
         if version is None:
             raise ValueError("Version field not found in metadata.")
         cls._validate_with_schema(data, version)
