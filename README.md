@@ -13,7 +13,7 @@ AIROA Metadata provides a **unified and versioned metadata schema system** for r
 
 ## Key Features
 
-- 🔄 **Version Management** - Support for multiple schema versions (0.0, 1.0, 1.1, 1.2, 1.3)
+- 🔄 **Version Management** - Support for multiple schema versions (0.0, 1.0, 1.1, 1.2, 1.3, 2.0)
 - 🔀 **Automatic Conversion** - Seamless conversion between different metadata versions
 - ✅ **JSON Schema Validation** - Robust validation against defined JSON schemas
 - 🔒 **Type Safety** - Full type hints and dataclass-based implementations
@@ -88,6 +88,9 @@ v1_3_metadata = MetadataV1_3.convert(v1_2_metadata)  # Convert to v1.3
 | 1.1 | Improved segment tracking | ✅ Stable |
 | 1.2 | Unified entity structure with task templates | ✅ Stable |
 | 1.3 | Split task entities into task-record and task-template | ✅ Stable |
+| 2.0 | Restructured schema: promotes `robot`, `environment`, `runner`, `devices`, `programs`, `episode`, `labels` and `segments` to top-level fields (replacing v1.x `context`/`run`); renames `version` to `schema_version` | ✅ Stable (latest) |
+
+> **What's new in v2.0 (latest):** Version 2.0 restructures the metadata layout to describe a run more directly. The nested `context`/`run` objects of v1.x are replaced by first-class top-level fields — `robot` (identity: URI, type, id), `environment` (site/location and a type such as `real_world` or `simulation`), `runner` (operator or model), `devices` (teleoperation devices), `programs` (teleoperation / data-logging services), `episode` (start/end timestamps, success flag, label), `labels` (high-level instructions) and `segments` (execution segments aligned with `labels`). The `version` field is renamed to `schema_version`, and `MetadataV2_0` becomes the new `MetadataLatest`.
 
 ## Usage Examples
 
