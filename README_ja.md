@@ -13,7 +13,7 @@ AIROA メタデータは、ロボットデータ収集のための**統一され
 
 ## 主な機能
 
-- 🔄 **バージョン管理** - 複数のスキーマバージョン（0.0, 1.0, 1.1, 1.2, 1.3）をサポート
+- 🔄 **バージョン管理** - 複数のスキーマバージョン（0.0, 1.0, 1.1, 1.2, 1.3, 2.0）をサポート
 - 🔀 **自動変換** - 異なるメタデータバージョン間でのシームレスな変換
 - ✅ **JSON スキーマ検証** - 定義されたJSONスキーマに対する堅牢な検証
 - 🔒 **型安全性** - 完全な型ヒントとデータクラスベースの実装
@@ -88,6 +88,9 @@ v1_3_metadata = MetadataV1_3.convert(v1_2_metadata)  # v1.3に変換
 | 1.1 | セグメントトラッキングの改善 | ✅ 安定版 |
 | 1.2 | タスクテンプレートとの統一されたエンティティ構造 | ✅ 安定版 |
 | 1.3 | タスクエンティティを task-record と task-template に分割 | ✅ 安定版 |
+| 2.0 | 実行内容を直接表現する再構成スキーマ: `robot`・`environment`・`runner`・`devices`・`programs`・`episode`・`labels`・`segments` をトップレベルに昇格（v1.x の `context`/`run` を置換）、`version` を `schema_version` に改名 | ✅ 安定版（最新） |
+
+> **v2.0 の新機能（最新）:** バージョン 2.0 はメタデータ構造を再設計し、実行内容をより直接的に記述します。v1.x のネストされた `context`/`run` を廃し、トップレベルのフィールド — `robot`（identity: URI・type・id）、`environment`（site/location と `real_world`／`simulation` などの type）、`runner`（operator または model）、`devices`（テレオペレーション機器）、`programs`（テレオペ／データ記録サービス）、`episode`（開始/終了タイムスタンプ・成否フラグ・label）、`labels`（高レベル指示）、`segments`（`labels` に整合した実行区間）— に置き換えました。`version` は `schema_version` に改名され、`MetadataV2_0` が新しい `MetadataLatest` になります。
 
 ## 使用例
 
