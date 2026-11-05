@@ -9,11 +9,11 @@ description = "A Python library for handling versioned metadata for robotic data
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [
-    { name = "Petr Khrapchenkov", email = "petr@example.com" },
+    { name = "Petr Khrapchenkov" },
+    { name = "Masafumi Takahashi" },
 ]
 maintainers = [
-    { name = "Tokyo University Matsuo Iwasawa Laboratory" },
-    { name = "AIROA" },
+    { name = "AI Robot Association (AIRoA)", email = "ext-oss@airoa.org" },
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
