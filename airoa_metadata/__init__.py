@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
+# Copyright 2025-2026 AI Robot Association (AIRoA)
+# SPDX-License-Identifier: Apache-2.0
 """
 AIROA Metadata Library
 
 A Python library for handling versioned metadata for robotic data collection.
 Supports multiple metadata schema versions with automatic conversion between versions.
-
-Copyright (c) Tokyo University Matsuo Iwasawa Laboratory, Petr Khrapchenkov
 """
 
 __version__ = "2.0.0"
